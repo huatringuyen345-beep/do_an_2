@@ -1,0 +1,77 @@
+/* Hero */
+.hero {
+    background-color: var(--color-primary-dark);
+    background-image: linear-gradient(rgba(32, 42, 72, .5), rgba(32, 42, 72, .6)), url('../images/anh_nen.png');
+    background-size: cover;
+    background-position: center;
+    color: #fff;
+    padding: 64px 0 72px;
+}
+.hero-grid { 
+    display: grid; 
+    grid-template-columns: 1.1fr .9fr; 
+    gap: 56px; 
+    align-items: center; }
+@media (min-width: 961px) {
+    .hero-grid .ticket { transform: translateY(18px); }
+}
+.hero h1 { color: #fff; margin-bottom: .45em; }
+.hero .lead { color: #DDF5F5; max-width: 46ch; }
+
+/* Các tuyến */
+.fan { border-top: 1px solid var(--color-border); }
+.fan-row { display: grid; grid-template-columns: 170px 1fr 190px; gap: 20px; align-items: center; padding: 14px 8px; border-bottom: 1px solid var(--color-border); text-decoration: none; color: var(--color-text); }
+.fan-row:hover { background: var(--color-surface-soft); }
+.fan-city { font: 600 1.02rem var(--font-h); color: var(--color-primary-dark); }
+.fan-track { position: relative; height: 20px; }
+.fan-track::before { content: ""; position: absolute; left: 0; top: 4px; width: 12px; height: 12px; border-radius: 50%; background: var(--color-primary-dark); }
+.fan-track i { position: absolute; left: 6px; top: 9px; height: 2px; width: var(--w); background: var(--color-primary-light); }
+.fan-track i::after { content: ""; position: absolute; right: -6px; top: -5px; width: 12px; height: 12px; border-radius: 50%; background: var(--color-accent); }
+.fan-meta { color: var(--color-text-muted); font-size: .93rem; text-align: right; }
+.fan-origin { display: grid; grid-template-columns: 170px 1fr 190px; gap: 20px; padding: 0 8px 10px; font-size: .88rem; color: var(--color-text-muted); }
+/* Loại xe */
+.types { display: grid; grid-template-columns: 1fr 1fr; border-radius: 12px; overflow: hidden; border: 1px solid var(--color-border); }
+.type { padding: 40px; }
+.type-seat { background: #fff; }
+.type-bed { background: var(--color-primary); color: #DDF5F5; }
+.type-bed h3, .type-bed .type-price { color: #fff; }
+.type h3 { font-size: 1.5rem; margin-bottom: .2em; }
+.type-price { font: 600 1.05rem var(--font-h); color: var(--color-primary); margin-bottom: 20px; }
+.type ul { list-style: none; display: grid; gap: 10px; margin-bottom: 26px; }
+.type li { display: flex; gap: 10px; align-items: flex-start; }
+.type li .icon { margin-top: 3px; color: var(--color-primary-light); }
+.type-bed li .icon { color: var(--color-accent); }
+
+/* Dịch vụ */
+.svc-strip { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 2px solid var(--color-primary-dark); }
+.svc { padding: 28px 24px 8px 0; margin-right: 24px; border-right: 1px solid var(--color-border); text-decoration: none; color: var(--color-text); display: block; }
+.svc:last-child { border-right: 0; margin-right: 0; }
+.svc .icon { color: var(--color-primary); margin-bottom: 12px; }
+.svc h3 { margin-bottom: .3em; }
+.svc p { color: var(--color-text-muted); font-size: .96rem; }
+.svc:hover h3 { text-decoration: underline; }
+
+/* Tin tức */
+.news-grid { display: grid; grid-template-columns: 1.25fr 1fr; gap: 40px; }
+.news-lead { background: var(--color-primary-soft); border-radius: 12px; padding: 36px; text-decoration: none; color: var(--color-text); display: flex; flex-direction: column; justify-content: flex-end; min-height: 300px; }
+.news-lead h3 { font-size: 1.5rem; }
+.promo { background: var(--color-accent); color: var(--color-primary-dark); }
+.promo .wrap { display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: center; justify-content: space-between; padding-top: 18px; padding-bottom: 18px; }
+.promo p { margin: 0; font-weight: 600; max-width: none; }
+.promo a { color: var(--color-primary-dark); font-weight: 600; }
+
+
+@media (max-width: 960px) {
+    .hero-grid, .news-grid { grid-template-columns: 1fr; gap: 36px; }
+    .svc-strip { grid-template-columns: 1fr 1fr; }
+    .svc { border-right: 0; margin-right: 0; border-bottom: 1px solid var(--color-border); padding-bottom: 20px; }
+}
+
+@media (max-width: 680px) {
+    .types { grid-template-columns: 1fr; }
+    .type { padding: 28px 24px; }
+    .fan-row, .fan-origin { grid-template-columns: 1fr; gap: 6px; }
+    .fan-meta { text-align: left; }
+    .fan-origin { display: none; }
+    .svc-strip { grid-template-columns: 1fr; }
+}

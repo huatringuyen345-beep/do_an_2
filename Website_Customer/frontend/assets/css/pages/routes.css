@@ -1,0 +1,63 @@
+/* Lịch trình */
+.toolbar input[type=search] { 
+    padding: 10px 14px; 
+    border: 1.5px solid #B8C8DA; 
+    border-radius: 8px; 
+    font: inherit; 
+    min-width: 240px; 
+}
+.route-list { 
+    display: grid; 
+    border-top: 2px solid var(--color-primary-dark); 
+}
+.route-row { 
+    display: grid; 
+    grid-template-columns: 1.2fr 1fr 1.6fr 1fr auto; 
+    gap: 20px; 
+    align-items: center; 
+    padding: 20px 4px; 
+    border-bottom: 1px solid var(--color-border); 
+}
+.route-row[hidden] { 
+    display: none; 
+}
+.route-name { 
+    font: 600 1.1rem var(--font-h); 
+    color: var(--color-primary-dark);
+     margin: 0; 
+}
+.route-name small { 
+    display: block; 
+    font: 400 .85rem var(--font-b); 
+    color: var(--color-text-muted); 
+}
+.times { 
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 6px; 
+}
+.times span { 
+    padding: 2px 9px; 
+    border-radius: 6px; 
+    background: var(--color-primary-soft); 
+    color: var(--color-primary-dark); 
+    font-weight: 500; 
+    font-size: .9rem; 
+}
+.price-line { 
+    display: block; 
+    font-size: .93rem; 
+}
+.price-line b { 
+    font-family: var(--font-h); 
+    color: var(--color-primary-dark);
+}
+@media (max-width: 960px) {
+    .route-row { grid-template-columns: 1fr 1fr; }
+    .route-row .go { grid-column: 1 / -1; }
+}
+
+@media (max-width: 680px) {
+    .route-row { grid-template-columns: 1fr; }
+    .toolbar input[type=search] { width: 100%; min-width: 0; }
+}

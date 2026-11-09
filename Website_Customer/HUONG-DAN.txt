@@ -1,0 +1,72 @@
+WEBSITE CONG TY VAN TAI TAI NGUYEN (PHP thuan)
+======================================================================
+
+CAU TRUC FRONTEND / BACKEND
+- frontend/: Cac trang giao dien PHP, CSS, JavaScript va hinh anh.
+- frontend/index.php: Trang chu that; index.php o thu muc goc chuyen den trang nay.
+- frontend/assets/css/style.css: CSS dung chung; frontend/assets/css/pages/: CSS rieng theo tung trang.
+- frontend/includes/: Header/footer dung chung va cac phan giao dien duoc tach rieng.
+- frontend/includes/gioi-thieu-content.php: Noi dung giao dien trang gioi thieu, duoc goi tu frontend/gioi-thieu.php.
+- backend/includes/: Cau hinh cong ty, session va file nap du lieu dung chung.
+- backend/data/: Du lieu tuyen xe va noi dung khach hang, tach theo nhom.
+- backend/data/routes.php: Du lieu tuyen, gia tham khao va gio khoi hanh.
+- backend/data/customer-content.php: Du lieu mau ve tin tuc, thanh toan, tuyen dung va FAQ.
+- backend/controllers/: Xu ly logic dat ve, tai khoan, lien he, ung tuyen.
+- backend/database/: Ket noi MySQL, ho tro tu dong tao DB neu chua co.
+- Cac trang con nam trong frontend/ (VD: /frontend/login.php).
+
+CHAY TREN XAMPP
+1. Dat thu muc project trong C:\xampp\htdocs\ (hoac D:\xampp\htdocs\).
+2. Mo XAMPP Control Panel va Start Apache + MySQL.
+3. Truy cap trang chu: http://localhost/Website_TaiNguyen/Website_Customer/frontend/
+4. Website_Customer va Website_Manage dung chung database `website_tainguyen`.
+   Cau hinh ket noi nam trong backend/database/config.php va
+   Website_Manage/config/config.php; thong tin host/user/password tuy theo may.
+5. Truoc khi dua website cho khach hang dung that, cap nhat dia chi va hotline trong backend/includes/config.php, dong thoi doi chieu gia, gio chay, chinh sach va tin bai mau trong backend/data/ voi thong tin thuc te.
+
+TAO TAI KHOAN KHACH HANG
+- Mo frontend/login.php va chon tab "Tao tai khoan".
+- Nhap ho ten, email va mat khau toi thieu 8 ky tu; so dien thoai khong bat buoc.
+- Neu email da duoc dung, dang nhap bang tai khoan hien co hoac chon email khac.
+- Tai khoan khach hang khong co quyen vao khu vuc quan ly.
+
+LUONG DANG NHAP
+- Trang chu va cac trang thong tin khach hang co the xem truc tiep, khong can dang nhap.
+- Dat ve, gui lien he va nop ho so yeu cau dang nhap hoac tao tai khoan khach hang.
+- Khach hang dang nhap tai frontend/login.php.
+- Nhan vien dang nhap tai frontend/login.php?area=staff; chi tai khoan dang hoat dong co vai tro nhan_vien/quan_tri moi vao duoc khu quan ly.
+- Dang xuat dung chung frontend/logout.php va gui POST kem ma CSRF.
+
+HUONG DAN NHAN VIEN
+- Nhan vien khong the tu dang ky tai khoan quan ly; lien he quan tri vien de duoc cap tai khoan.
+- Cac thao tac xu ly dat ve, chuyen xe, doi xe, don dich vu va lien he duoc huong dan trong file HUONG-DAN.txt o thu muc goc project.
+
+HUONG DAN ADMIN
+- Huong dan rieng cho quyen quan tri nam trong Website_Manage/HUONG-DAN-ADMIN.txt.
+
+CAC TRANG VA TINH NANG NOI BAT
+1. He thong Tai khoan (Dang nhap / Dang ky / Dang xuat / Quan ly ho so):
+   - frontend/login.php: Dang nhap va tao tai khoan khach hang.
+   - frontend/tai-khoan.php: Trang ca nhan gom 3 tab:
+     + Thong tin ca nhan (Cap nhat Ho ten, SDT, Dia chi).
+     + Ve xe cua toi (Liet ke toan bo ve da dat tu database, trang thai, ma ve, gia tien).
+     + Doi mat khau (Xac thuc mat khau cu, ma hoa Bcrypt mat khau moi).
+   - frontend/logout.php: Dang xuat an toan, xoa session va hien thong bao.
+   - Header: Hien thi Pill Avatar nguoi dung, menu Dropdown dep mat, hien badge vai tro.
+
+2. Dat ve xe online (frontend/dat-ve.php):
+   - Chon chieu di, tuyen xe, ngay gio, loai xe (ghe ngoi / giuong nam).
+   - Chon vi tri mong muon tren so do xe; nhan vien xac nhan tinh trang cho thuc te.
+   - Tu dong dien thong tin hanh khach neu da dang nhap.
+   - Tuy chon xe trung chuyen don tan nha (tu dong dong/mo hop nhap dia chi).
+   - Luu yeu cau vao bang dat_ve trong MySQL; chi hien thanh cong sau khi ghi database.
+
+3. Cac trang thong tin:
+   - frontend/index.php: Trang chu, tim chuyen xe nhanh, danh sach tuyen.
+   - frontend/gioi-thieu.php: Gioi thieu cong ty, cam ket chat luong.
+   - frontend/lich-trinh.php: Bang gia va gio khoi hanh, bo loc khu vuc va tim kiem.
+   - frontend/dich-vu.php: Gui hang hoa, xe trung chuyen, khach san lien ket, tram dung.
+   - frontend/tin-tuc.php: Tin tuc, khuyen mai, bai viet chi tiet.
+   - frontend/tuyen-dung.php: Danh sach vi tri va form nop ho so ung tuyen.
+   - frontend/ho-tro.php: Hinh thuc thanh toan, bieu phi doi/huy ve, FAQ.
+   - frontend/lien-he.php: Xu ly trang lien he; giao dien nam trong frontend/includes/lien-he-content.php.

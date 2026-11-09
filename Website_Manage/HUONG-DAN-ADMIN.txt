@@ -1,0 +1,53 @@
+HUONG DAN RIENG CHO QUAN TRI VIEN
+Nha xe Tai Nguyen
+============================================================
+
+Tai lieu nay chi danh cho tai khoan co vai tro quan_tri. Huong dan chung
+cho khach hang va cac thao tac nghiep vu nhan vien nam trong:
+- ../HUONG-DAN.txt
+- ../Website_Customer/HUONG-DAN.txt
+
+
+1. DANG NHAP VA QUYEN QUAN TRI
+
+Khoi dong Apache va MySQL/MariaDB, sau do mo:
+http://localhost/Website_TaiNguyen/Website_Customer/frontend/login.php?area=staff
+
+Tai khoan phai co vai tro quan_tri, dang hoat dong va duoc cap boi nguoi
+quan ly database. Tai khoan quan_tri cung su dung khu vuc nghiep vu chung
+voi nhan vien.
+
+Trang dang nhap khong cho tu dang ky tai khoan nhan vien hay admin.
+Khong cap quyen quan_tri cho tai khoan khach hang.
+
+
+2. CAP TAI KHOAN NHAN VIEN
+
+Chi admin duoc phe duyet va cap tai khoan nhan_vien. Tao tai khoan voi:
+- ma_vai_tro tuong ung vai tro nhan_vien (thong thuong la 2).
+- trang_thai = hoat_dong.
+- mat khau duoc bam bang PHP password_hash(); khong luu mat khau goc.
+
+Khong sua truc tiep bang database tren he thong dang van hanh neu chua sao
+luu. Sau khi cap tai khoan, gui thong tin dang nhap cho dung nhan vien qua
+kenh rieng; khuyen nghi doi mat khau neu co nguy co bi lo.
+
+
+3. QUAN LY VA AN TOAN
+
+- Dung tai khoan rieng cho tung nguoi; khong chia se tai khoan admin.
+- Kiem tra vai tro va trang thai tai khoan khi nhan vien nghi viec.
+- Khong chia se mat khau, hash mat khau hoac thong tin ket noi database.
+- Khong import lai file SQL mau len database dang co du lieu: file co the
+  chua lenh DROP TABLE.
+- Cau hinh ket noi lay tu bien moi truong WEBSITE_DB_HOST, WEBSITE_DB_USER,
+  WEBSITE_DB_PASSWORD va WEBSITE_DB_NAME. Mac dinh phuc vu XAMPP local la
+  127.0.0.1, root, mat khau trong va database website_tainguyen. Hai ung dung
+  phai ket noi cung database. Khong commit thong tin dang nhap that vao Git.
+
+
+4. TAI KHOAN DEMO LOCAL
+
+Khong su dung tai khoan/mat khau demo tren moi truong cong khai. Tao tai
+khoan quan_tri rieng tren database local, dung password_hash() de tao hash
+mat khau va thay doi mat khau ngay neu thong tin tai khoan da duoc chia se.

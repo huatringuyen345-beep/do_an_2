@@ -1,0 +1,43 @@
+.pay-cards { 
+    display: grid; 
+    grid-template-columns: repeat(4, 1fr); 
+    gap: 28px; 
+}
+.pay-cards .icon { 
+    color: var(--color-primary); 
+    margin-bottom: 8px; 
+}
+table.fees { 
+    width: 100%; 
+    border-collapse: collapse; 
+}
+table.fees th, table.fees td { 
+    text-align: left; 
+    padding: 12px 14px; 
+    border-bottom: 1px solid var(--color-border); 
+}
+table.fees th { 
+    background: var(--color-surface-soft); 
+    font-family: var(--font-h); 
+    color: var(--color-primary-dark); 
+}
+.table-scroll { 
+    overflow-x: auto; 
+}
+.estimate { 
+    margin-top: 18px; 
+    padding: 16px; 
+    border-radius: 8px; 
+    background: var(--color-primary-soft); 
+}
+.estimate strong { 
+    font: 700 1.4rem var(--font-h); 
+    color: var(--color-primary); }
+
+@media (max-width: 960px) {
+    .pay-cards { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 680px) {
+    .pay-cards { grid-template-columns: 1fr; }
+}
