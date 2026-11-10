@@ -1,0 +1,22 @@
+HUONG DAN CHAY WEBSITE TAI NGUYEN
+================================
+
+1. Dat project trong C:\xampp\htdocs\Website_TaiNguyen.
+2. Khoi dong Apache va MySQL trong XAMPP.
+3. Tao database website_tainguyen bang database/website_tainguyen.sql,
+   hoac chay cac migration trong database/migrations theo thu tu ten file.
+   Khong import lai schema len database dang co du lieu.
+4. Cau hinh WEBSITE_DB_HOST, WEBSITE_DB_USER, WEBSITE_DB_PASSWORD va
+   WEBSITE_DB_NAME theo .env.example. PHP/Apache can duoc cau hinh de nhan
+   cac bien moi truong nay; file .env.example khong tu dong duoc nap.
+5. Mo http://localhost/Website_TaiNguyen/Website_Customer/
+
+Dang nhap khach hang:
+  Website_Customer/pages/login.php
+
+Dang nhap nhan vien/quan tri:
+  Website_Customer/pages/login.php?area=staff
+
+Website_Customer va Website_Manage dung chung database website_tainguyen.
+Xem customer-guide.txt, admin-guide.txt va cac tai lieu Markdown trong thu
+muc docs de biet them chi tiet.

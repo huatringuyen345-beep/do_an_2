@@ -1,0 +1,23 @@
+HUONG DAN KHU VUC KHACH HANG
+============================
+
+Trang chinh:
+  Website_Customer/pages/index.php
+
+Trang tai khoan:
+  Website_Customer/pages/login.php       Dang nhap va tao tai khoan
+  Website_Customer/pages/tai-khoan.php   Ho so, lich su ve va doi mat khau
+  Website_Customer/pages/logout.php      Dang xuat qua POST va CSRF
+
+Trang nghiep vu:
+  dat-ve.php       Gui yeu cau dat ve
+  lien-he.php      Gui tin nhan lien he
+  tuyen-dung.php   Xem vi tri va gui thong tin ung tuyen
+
+URL cu tai Website_Customer/frontend/ van duoc giu de tuong thich.
+Ma trang nam trong pages/, giao dien dung chung trong includes/, CSS,
+JavaScript va hinh anh trong assets/. Xu ly yeu cau nam trong backend/.
+
+Khach hang dang nhap tai pages/login.php. Dat ve, gui lien he va nop ho so
+yeu cau tai khoan. Du lieu gia, gio chay va mot so noi dung hien la mau;
+can doi chieu voi thong tin thuc te truoc khi van hanh.

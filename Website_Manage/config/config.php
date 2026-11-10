@@ -18,7 +18,7 @@ if (!isset($conn) || !($conn instanceof mysqli)) {
             $temp->select_db($dbname);
             $chk = $temp->query("SHOW TABLES LIKE 'vai_tro'");
             if ($chk && $chk->num_rows === 0) {
-                $sqlFile = __DIR__ . '/../database/website-tainguyen.sql';
+                $sqlFile = __DIR__ . '/../../database/website_tainguyen.sql';
                 if (!file_exists($sqlFile)) {
                     throw new RuntimeException('Database schema file was not found: ' . $sqlFile);
                 }

@@ -33,6 +33,35 @@ function admin_e($value): string
     return htmlspecialchars((string) $value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
 
+function admin_base_url(): string
+{
+    $scriptName = str_replace('\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? ''));
+    $adminPosition = strpos($scriptName, '/admin/');
+
+    if ($adminPosition !== false) {
+        return substr($scriptName, 0, $adminPosition + strlen('/admin'));
+    }
+
+    return rtrim(str_replace('\\', '/', dirname($scriptName)), '/');
+}
+
+function admin_url(string $path): string
+{
+    return admin_base_url() . '/' . ltrim($path, '/');
+}
+
+function admin_project_url(string $path): string
+{
+    $projectBase = dirname(dirname(admin_base_url()));
+
+    return rtrim($projectBase, '/') . '/' . ltrim($path, '/');
+}
+
+function admin_asset_url(string $path): string
+{
+    return admin_project_url('Website_Manage/assets/' . ltrim($path, '/'));
+}
+
 /** Lấy hoặc tạo token CSRF riêng cho các biểu mẫu trong khu quản lý. */
 function admin_csrf_token(): string
 {
@@ -60,7 +89,7 @@ function admin_verify_csrf(): void
 function admin_require_staff(): void
 {
     if (empty($_SESSION['account']['id'])) {
-        header('Location: login.php');
+        header('Location: ' . admin_url('login.php'));
         exit;
     }
 
@@ -81,7 +110,7 @@ function admin_require_staff(): void
     if (!$staff) {
         unset($_SESSION['account']);
         $_SESSION['account_flash'] = ['error' => 'Tài khoản không còn quyền truy cập khu vực quản lý.'];
-        header('Location: login.php');
+        header('Location: ' . admin_url('login.php'));
         exit;
     }
 

@@ -10,7 +10,7 @@ if (!isset($conn) || !($conn instanceof mysqli)) {
         $conn = new mysqli($servername, $username, $password, $dbname);
         $conn->set_charset('utf8mb4');
     } catch (Throwable $e) {
-        // Nếu DB chưa tồn tại trên MySQL, thử tạo và nạp website_tainguyen.sql
+        // Nếu DB chưa tồn tại, thử tạo và nạp schema dùng chung ở thư mục gốc.
         try {
             $temp = new mysqli($servername, $username, $password);
             $temp->set_charset('utf8mb4');
@@ -18,7 +18,7 @@ if (!isset($conn) || !($conn instanceof mysqli)) {
             $temp->select_db($dbname);
             $chk = $temp->query("SHOW TABLES LIKE 'vai_tro'");
             if ($chk && $chk->num_rows === 0) {
-                $sqlFile = __DIR__ . '/website_tainguyen.sql';
+                $sqlFile = __DIR__ . '/../../../database/website_tainguyen.sql';
                 if (file_exists($sqlFile)) {
                     $sql = file_get_contents($sqlFile);
                     $temp->multi_query($sql);

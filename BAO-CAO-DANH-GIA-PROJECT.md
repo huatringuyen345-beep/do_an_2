@@ -1,6 +1,6 @@
 # Báo cáo đánh giá website Tài Nguyên
 
-**Phạm vi:** Website khách hàng (`Website_Customer`), khu vực quản lý (`Website_Manage`) và schema/migration trong `databace`.
+**Phạm vi:** Website khách hàng (`Website_Customer`), khu vực quản lý (`Website_Manage`) và schema/migration trong `database`.
 
 **Mục đích:** Tóm tắt những phần đã triển khai, phân loại theo quản trị viên, nhân viên và khách hàng; chỉ rõ phần nào đang dùng cơ sở dữ liệu, phần nào chỉ là giao diện/dữ liệu mẫu và các hạng mục cần hoàn thiện.
 
@@ -149,8 +149,8 @@ Các migration định nghĩa được những nhóm dữ liệu chính:
 
 ## 8. Các tài liệu/mã nguồn liên quan
 
-- Hướng dẫn khách hàng: [Website_Customer/HUONG-DAN.txt](./Website_Customer/HUONG-DAN.txt)
-- Hướng dẫn admin: [Website_Manage/HUONG-DAN-ADMIN.txt](./Website_Manage/HUONG-DAN-ADMIN.txt)
+- Hướng dẫn khách hàng: [docs/customer-guide.txt](./docs/customer-guide.txt)
+- Hướng dẫn admin: [docs/admin-guide.txt](./docs/admin-guide.txt)
 - Backend khách hàng: [Website_Customer/backend/](./Website_Customer/backend/)
 - Khu quản lý: [Website_Manage/admin/](./Website_Manage/admin/)
-- Schema và migrations: [databace/migrations/](./databace/migrations/)
+- Schema và migrations: [database/migrations/](./database/migrations/)
