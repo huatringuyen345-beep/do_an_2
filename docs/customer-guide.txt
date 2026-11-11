@@ -14,8 +14,9 @@ Trang nghiep vu:
   lien-he.php      Gui tin nhan lien he
   tuyen-dung.php   Xem vi tri va gui thong tin ung tuyen
 
-URL cu tai Website_Customer/frontend/ van duoc giu de tuong thich.
-Ma trang nam trong pages/, giao dien dung chung trong includes/, CSS,
+Trang duoc phuc vu truc tiep tu Website_Customer/pages/. Cac URL cu
+tai Website_Customer/frontend/ da bi go bo.
+Giao dien dung chung trong includes/, CSS,
 JavaScript va hinh anh trong assets/. Xu ly yeu cau nam trong backend/.
 
 Khach hang dang nhap tai pages/login.php. Dat ve, gui lien he va nop ho so

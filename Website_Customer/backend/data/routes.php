@@ -1,69 +1,95 @@
 <?php
-/* Dữ liệu tuyến xe tham khảo; cần đối chiếu với lịch chạy và giá thực tế. */
-$routes = [
-    [
-        'slug' => 'ca-mau', 'ten' => 'Cà Mau', 'nhom' => 'Đồng bằng sông Cửu Long',
-        'km' => 65, 'gio' => 1.5, 'ghe' => 60000, 'giuong' => null,
-        'khoi_hanh' => ['05:30', '07:30', '09:30', '11:30', '13:30', '15:30', '17:30'],
-    ],
-    [
-        'slug' => 'soc-trang', 'ten' => 'Sóc Trăng', 'nhom' => 'Đồng bằng sông Cửu Long',
-        'km' => 60, 'gio' => 1.5, 'ghe' => 60000, 'giuong' => null,
-        'khoi_hanh' => ['05:00', '07:00', '09:00', '11:00', '13:00', '15:00', '17:00'],
-    ],
-    [
-        'slug' => 'can-tho', 'ten' => 'Cần Thơ', 'nhom' => 'Đồng bằng sông Cửu Long',
-        'km' => 120, 'gio' => 2.5, 'ghe' => 110000, 'giuong' => null,
-        'khoi_hanh' => ['05:00', '07:00', '09:00', '11:00', '13:00', '15:00', '17:00'],
-    ],
-    [
-        'slug' => 'rach-gia', 'ten' => 'Rạch Giá', 'nhom' => 'Đồng bằng sông Cửu Long',
-        'km' => 190, 'gio' => 4, 'ghe' => 140000, 'giuong' => null,
-        'khoi_hanh' => ['05:30', '08:00', '11:00', '14:00'],
-    ],
-    [
-        'slug' => 'tp-hcm', 'ten' => 'TP. Hồ Chí Minh', 'nhom' => 'Đông Nam Bộ',
-        'km' => 280, 'gio' => 6, 'ghe' => 200000, 'giuong' => 250000,
-        'khoi_hanh' => ['05:00', '07:30', '10:00', '13:00', '17:00', '20:30', '22:00'],
-    ],
-    [
-        'slug' => 'binh-duong', 'ten' => 'Bình Dương', 'nhom' => 'Đông Nam Bộ',
-        'km' => 320, 'gio' => 7, 'ghe' => 230000, 'giuong' => 280000,
-        'khoi_hanh' => ['06:00', '09:00', '13:30', '19:00', '21:30'],
-    ],
-    [
-        'slug' => 'vung-tau', 'ten' => 'Vũng Tàu', 'nhom' => 'Đông Nam Bộ',
-        'km' => 360, 'gio' => 8, 'ghe' => 260000, 'giuong' => 310000,
-        'khoi_hanh' => ['05:30', '09:30', '18:00', '21:00'],
-    ],
-    [
-        'slug' => 'da-lat', 'ten' => 'Đà Lạt', 'nhom' => 'Tây Nguyên và Nam Trung Bộ',
-        'km' => 530, 'gio' => 12, 'ghe' => 330000, 'giuong' => 400000,
-        'khoi_hanh' => ['17:00', '19:00', '20:30'],
-    ],
-    [
-        'slug' => 'nha-trang', 'ten' => 'Nha Trang', 'nhom' => 'Tây Nguyên và Nam Trung Bộ',
-        'km' => 700, 'gio' => 15, 'ghe' => 380000, 'giuong' => 450000,
-        'khoi_hanh' => ['15:00', '17:00', '18:30'],
-    ],
-];
+/*
+ * Nap tuyen xe va gio khoi hanh tu co so du lieu.
+ * Cac trang su dung cung mot cau truc du lieu de hien thi va xu ly dat ve.
+ */
+require_once __DIR__ . '/../database/config.php';
+
+if (!isset($conn) || !($conn instanceof mysqli)) {
+    throw new RuntimeException('Khong the tai tuyen xe vi chua ket noi duoc co so du lieu.');
+}
+
+$routes = [];
+
+try {
+    $cauLenh = $conn->prepare(
+        "SELECT td.slug, td.ten_tuyen, td.nhom_tuyen, td.khoang_cach_km,
+                td.thoi_gian_phut, td.gia_ve_co_ban, td.gia_ve_giuong_nam,
+                TIME_FORMAT(gkh.gio_chay, '%H:%i') AS gio_chay
+         FROM tuyen_duong td
+         INNER JOIN diem_dung diem_di ON diem_di.ma_diem_dung = td.ma_diem_di
+         LEFT JOIN gio_khoi_hanh_tuyen gkh ON gkh.ma_tuyen = td.ma_tuyen
+         WHERE diem_di.tinh_thanh = ? AND td.trang_thai = 'hoat_dong'
+           AND td.slug IS NOT NULL AND td.slug <> ''
+         ORDER BY td.ma_tuyen, gkh.gio_chay"
+    );
+    $tinhKhoiHanh = 'Bạc Liêu';
+    $cauLenh->bind_param('s', $tinhKhoiHanh);
+    $cauLenh->execute();
+    $ketQua = $cauLenh->get_result();
+
+    while ($dong = $ketQua->fetch_assoc()) {
+        $slug = $dong['slug'];
+        if (!isset($routes[$slug])) {
+            $tenTuyen = (string) $dong['ten_tuyen'];
+            $viTriPhanCach = strrpos($tenTuyen, ' - ');
+            $tenDiemDen = $viTriPhanCach === false
+                ? $tenTuyen
+                : substr($tenTuyen, $viTriPhanCach + 3);
+
+            $routes[$slug] = [
+                'slug' => $slug,
+                'ten' => $tenDiemDen,
+                'nhom' => $dong['nhom_tuyen'] ?? '',
+                'km' => (float) $dong['khoang_cach_km'],
+                'gio' => (float) $dong['thoi_gian_phut'] / 60,
+                'ghe' => (float) $dong['gia_ve_co_ban'],
+                'giuong' => $dong['gia_ve_giuong_nam'] === null
+                    ? null
+                    : (float) $dong['gia_ve_giuong_nam'],
+                'khoi_hanh' => [],
+            ];
+        }
+
+        if ($dong['gio_chay'] !== null) {
+            $routes[$slug]['khoi_hanh'][] = $dong['gio_chay'];
+        }
+    }
+
+    $cauLenh->close();
+    $routes = array_values($routes);
+    if (!$routes) {
+        throw new RuntimeException('Khong tim thay tuyen hoat dong xuat phat tu Bac Lieu.');
+    }
+} catch (Throwable $loi) {
+    error_log('Loi khi tai tuyen xe tu co so du lieu: ' . $loi->getMessage());
+    throw new RuntimeException('Khong the tai danh sach tuyen xe tu co so du lieu.', 0, $loi);
+}
 
 function find_route($slug)
 {
     global $routes;
-    foreach ($routes as $route) {
-        if ($route['slug'] === $slug) {
-            return $route;
+
+    foreach ($routes as $tuyenDuong) {
+        if ($tuyenDuong['slug'] === $slug) {
+            return $tuyenDuong;
         }
     }
+
     return null;
 }
 
 function min_price($type)
 {
     global $routes;
-    $prices = array_filter(array_column($routes, $type), function ($price) {
-        return $price !== null;
+
+    if (!in_array($type, ['ghe', 'giuong'], true)) {
+        return 0;
+    }
+
+    $cacMucGia = array_filter(array_column($routes, $type), function ($mucGia) {
+        return $mucGia !== null;
     });
-    return $prices ? min($prices) : 0;
+
+    return $cacMucGia ? min($cacMucGia) : 0;
 }

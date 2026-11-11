@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../backend/includes/config.php';
 customer_require_account('tuyen-dung.php');
 require_once __DIR__ . '/../backend/includes/data.php';
-require_once __DIR__ . '/../backend/controllers/RecruitmentController.php';
+require_once __DIR__ . '/../backend/controllers/XuLyTuyenDung.php';
 
 $pageTitle = 'Tuyển dụng';
 $pageDesc  = 'Tài Nguyên tuyển lái xe, phụ xe, nhân viên phòng vé tại Bạc Liêu.';

@@ -4,14 +4,19 @@ HUONG DAN KHU VUC QUAN LY
 Dang nhap bang tai khoan nhan_vien hoac quan_tri tai:
   Website_Customer/pages/login.php?area=staff
 
+Database moi tao bang file SQL co tai khoan quan tri demo local. Neu tao
+database bang migration, chay database/seeds/001_demo_admin.sql neu can
+tao tai khoan demo. Doi mat khau sau lan dang nhap dau va khong su dung
+tai khoan demo tren moi truong cong khai.
+
 Tai khoan quan ly do nguoi co tham quyen cap; khong dang ky tu giao dien.
 Khu vuc nghiep vu:
-  Website_Manage/admin/modules/bookings/bookings.php  Don dat ve
-  Website_Manage/admin/modules/trips/trips.php        Chuyen xe
+  Website_Manage/admin/modules/bookings/bookings.php   Don dat ve
+  Website_Manage/admin/modules/trips/trips.php         Chuyen xe
   Website_Manage/admin/modules/fleet/fleet.php         Tuyen, xe va ghe
   Website_Manage/admin/modules/services/services.php   Don dich vu
   Website_Manage/admin/modules/support/contacts.php    Lien he
-  Website_Manage/admin/modules/users/profile.php      Ho so tai khoan
+  Website_Manage/admin/modules/users/profile.php       Ho so tai khoan
 
 URL cu trong Website_Manage/admin/ van chuyen den cac trang module moi.
 Quan tri vien va nhan vien hien dung chung quyen nghiep vu; khong cap quyen

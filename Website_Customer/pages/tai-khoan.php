@@ -18,7 +18,7 @@ if (empty($_SESSION['account']['id'])) {
     exit;
 }
 
-require_once __DIR__ . '/../backend/controllers/AuthController.php';
+require_once __DIR__ . '/../backend/controllers/DieuKhienTaiKhoan.php';
 require_once __DIR__ . '/../backend/database/config.php';
 
 $userId = (int)$account['id'];

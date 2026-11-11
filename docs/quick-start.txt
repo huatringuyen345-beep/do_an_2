@@ -6,6 +6,8 @@ HUONG DAN CHAY WEBSITE TAI NGUYEN
 3. Tao database website_tainguyen bang database/website_tainguyen.sql,
    hoac chay cac migration trong database/migrations theo thu tu ten file.
    Khong import lai schema len database dang co du lieu.
+   Neu dung migrations tren database local, chay them
+   database/seeds/001_demo_admin.sql de tao tai khoan quan tri demo neu chua co.
 4. Cau hinh WEBSITE_DB_HOST, WEBSITE_DB_USER, WEBSITE_DB_PASSWORD va
    WEBSITE_DB_NAME theo .env.example. PHP/Apache can duoc cau hinh de nhan
    cac bien moi truong nay; file .env.example khong tu dong duoc nap.
@@ -16,6 +18,9 @@ Dang nhap khach hang:
 
 Dang nhap nhan vien/quan tri:
   Website_Customer/pages/login.php?area=staff
+
+Tai khoan demo chi danh cho local; hay doi mat khau sau lan dang nhap dau.
+Khong dung tai khoan nay tren moi truong cong khai.
 
 Website_Customer va Website_Manage dung chung database website_tainguyen.
 Xem customer-guide.txt, admin-guide.txt va cac tai lieu Markdown trong thu

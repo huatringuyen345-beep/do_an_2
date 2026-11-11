@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../backend/includes/config.php';
 customer_require_account('lien-he.php');
 require_once __DIR__ . '/../backend/includes/data.php';
-require_once __DIR__ . '/../backend/controllers/SupportController.php';
+require_once __DIR__ . '/../backend/controllers/XuLyHoTro.php';
 
 $pageTitle = 'Liên hệ';
 $pageDesc  = 'Liên hệ nhà xe Tài Nguyên tại Bạc Liêu: địa chỉ, số điện thoại, email và form gửi tin nhắn.';

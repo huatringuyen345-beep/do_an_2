@@ -1,7 +1,7 @@
 <?php
 /**
- * config.php - Thông tin chung của website + các hàm tiện ích.
- * Sửa thông tin công ty ở đây, tất cả các trang sẽ tự cập nhật.
+ * config.php - Thong tin chung cua website va cac ham tien ich.
+ * Sua thong tin cong ty tai day, tat ca cac trang se tu cap nhat.
  */
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_set_cookie_params([
@@ -22,35 +22,35 @@ define('SITE_NAME', 'Tài Nguyên');
 $company = [
     'ten'      => 'Công ty vận tải Tài Nguyên',
     'slogan'   => 'Vận tải hành khách và hàng hóa từ Bạc Liêu',
-    'dia_chi'  => 'Số 00, đường ..., Bạc Liêu',          // TODO: thay địa chỉ thật
-    'hotline'  => '0291 3 000 000',                       // TODO: thay số thật
+    'dia_chi'  => 'Số 00, đường ..., Bạc Liêu',          // TODO: thay dia chi that
+    'hotline'  => '0291 3 000 000',                       // TODO: thay so that
     'hotline2' => '1900 0000',
     'email'    => 'lienhe@tainguyen.vn',
     'gio_mo'   => '04:30 – 22:00 hằng ngày',
 ];
 
-/** Escape HTML để tránh lỗi XSS khi in dữ liệu người dùng nhập */
+/** Ma hoa HTML de tranh loi XSS khi hien thi du lieu do nguoi dung nhap. */
 function e($s)
 {
     return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8');
 }
 
-/** 250000 -> 250.000đ */
+/** Dinh dang 250000 thanh 250.000d. */
 function money($n)
 {
     return number_format((int)$n, 0, ',', '.') . 'đ';
 }
 
-/** 2.5 -> "2 giờ 30 phút" */
+/** Doi 2.5 gio thanh "2 gio 30 phut". */
 function duration($h)
 {
-    $total = (int)round($h * 60);
-    $g = intdiv($total, 60);
-    $p = $total % 60;
-    return $g . ' giờ' . ($p ? ' ' . $p . ' phút' : '');
+    $tongSoPhut = (int)round($h * 60);
+    $soGio = intdiv($tongSoPhut, 60);
+    $soPhutLe = $tongSoPhut % 60;
+    return $soGio . ' giờ' . ($soPhutLe ? ' ' . $soPhutLe . ' phút' : '');
 }
 
-/** Giữ lại giá trị người dùng đã nhập khi form báo lỗi */
+/** Giu lai gia tri nguoi dung da nhap khi bieu mau bao loi. */
 function old($key, $default = '')
 {
     return isset($_POST[$key]) && is_scalar($_POST[$key]) ? e($_POST[$key]) : e($default);
@@ -58,8 +58,8 @@ function old($key, $default = '')
 
 function customer_auth_next($page)
 {
-    $allowedPages = ['dat-ve.php', 'lien-he.php', 'tuyen-dung.php', 'tai-khoan.php'];
-    return is_string($page) && in_array($page, $allowedPages, true) ? $page : 'tai-khoan.php';
+    $cacTrangDuocPhep = ['dat-ve.php', 'lien-he.php', 'tuyen-dung.php', 'tai-khoan.php'];
+    return is_string($page) && in_array($page, $cacTrangDuocPhep, true) ? $page : 'tai-khoan.php';
 }
 
 function customer_require_account($next)
@@ -73,10 +73,10 @@ function customer_require_account($next)
     exit;
 }
 
-/** Bộ icon SVG dạng nét (stroke) dùng chung */
+/** Bo bieu tuong SVG dang net dung chung. */
 function icon($name, $size = 24)
 {
-    $paths = [
+    $cacDuongDanBieuTuong = [
         'bus'          => '<path d="M8 6v6M15 6v6M2 12h19.6M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3M9 18h5"/><circle cx="7" cy="18" r="2"/><circle cx="16" cy="18" r="2"/>',
         'box'          => '<path d="M16.5 9.4 7.5 4.21M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16zM3.27 6.96 12 12.01l8.73-5.05M12 22.08V12"/>',
         'car'          => '<path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2M7 17h10"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/>',
@@ -107,6 +107,6 @@ function icon($name, $size = 24)
         'shield-check' => '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>',
         'edit'         => '<path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>',
     ];
-    $inner = $paths[$name] ?? '';
-    return '<svg class="icon" width="' . $size . '" height="' . $size . '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' . $inner . '</svg>';
+    $noiDungBieuTuong = $cacDuongDanBieuTuong[$name] ?? '';
+    return '<svg class="icon" width="' . $size . '" height="' . $size . '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' . $noiDungBieuTuong . '</svg>';
 }

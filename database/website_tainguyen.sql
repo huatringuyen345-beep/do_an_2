@@ -308,7 +308,14 @@ INSERT INTO `gio_khoi_hanh_tuyen` (`ma_gio_khoi_hanh`, `ma_tuyen`, `gio_chay`) V
 (50, 10, '19:00:00'),
 (51, 10, '20:30:00'),
 (52, 11, '15:00:00'),
-(53, 11, '17:00:00');
+(53, 11, '17:00:00'),
+(54, 12, '05:30:00'), (55, 12, '07:30:00'), (56, 12, '09:30:00'),
+(57, 12, '11:30:00'), (58, 12, '13:30:00'), (59, 12, '15:30:00'), (60, 12, '17:30:00'),
+(61, 13, '05:00:00'), (62, 13, '07:00:00'), (63, 13, '09:00:00'),
+(64, 13, '11:00:00'), (65, 13, '13:00:00'), (66, 13, '15:00:00'), (67, 13, '17:00:00'),
+(68, 14, '05:30:00'), (69, 14, '08:00:00'), (70, 14, '11:00:00'), (71, 14, '14:00:00'),
+(72, 15, '05:00:00'), (73, 15, '07:30:00'), (74, 15, '10:00:00'),
+(75, 15, '13:00:00'), (76, 15, '17:00:00'), (77, 15, '20:30:00'), (78, 15, '22:00:00');
 
 -- --------------------------------------------------------
 
@@ -437,12 +444,12 @@ CREATE TABLE `nguoi_dung` (
 --
 
 INSERT INTO `nguoi_dung` (`ma_nguoi_dung`, `ma_vai_tro`, `ho_ten`, `email`, `so_dien_thoai`, `mat_khau`, `dia_chi`, `trang_thai`, `ngay_tao`) VALUES
-(1, 1, 'Demo Admin', 'demo.admin@example.com', '0900000000', 'DISABLED_DEMO_PASSWORD_HASH', NULL, 'tam_khoa', '2026-10-24 12:21:00'),
+(1, 1, 'Demo Admin', 'admin@example.com', '0900000000', '$2y$10$EZmE9W.tRPuME/OnpShVHeyphVCWtRUK2i4jhUR2wnk0ULz4rdXm6', NULL, 'hoat_dong', '2026-10-24 12:21:00'),
 (2, 1, 'Châu Văn Tài', 'tai.admin@example.com', '0912111222', '$2y$10$abcdef1234567890abcdef', 'Quận 1, TP Hồ Chí Minh', 'hoat_dong', '2026-10-24 12:21:00'),
 (3, 2, 'Ngô Nhật Duy', 'duy.nhanvien@example.com', '0922333444', '$2y$10$abcdef1234567890abcdef', 'Bình Thủy, Cần Thơ', 'hoat_dong', '2026-10-24 12:21:00'),
 (4, 2, 'Nguyễn Hữu Đạt', 'dat.nhanvien@example.com', '0933444555', '$2y$10$abcdef1234567890abcdef', 'Thành phố Cà Mau, Cà Mau', 'hoat_dong', '2026-10-24 12:21:00'),
 (5, 3, 'Lưu Thạnh Mậu', 'mau.khachhang@example.com', '0944555666', '$2y$10$abcdef1234567890abcdef', 'Rạch Giá, Kiên Giang', 'hoat_dong', '2026-10-24 12:21:00'),
-(6, 3, 'Lê Huỳnh Thái', 'thai.khachhang@example.com', '0955666777', '$2y$10$abcdef1234567890abcdef', 'Châu Đốc, An Giang', 'hoat_dong', '2026-10-24 12:21:00'),
+(6, 3, 'Lê Huỳnh Thái', 'thai.khachhang@example.com', '0955666777', '$2y$10$abcdef1234567890abcdef', 'Châu Đốc, An Giang', 'hoat_dong', '２０２６－１０－２４ １２：２１：００'),
 (7, 3, 'Trần Đức Thắng', 'thang.khachhang@example.com', '0966777888', '$2y$10$abcdef1234567890abcdef', 'Vĩnh Châu, Sóc Trăng', 'hoat_dong', '2026-10-24 12:21:00'),
 (8, 3, 'Nguyễn Song Nhân', 'nhan.khachhang@example.com', '0977888999', '$2y$10$abcdef1234567890abcdef', 'Hòa Bình, Bạc Liêu', 'hoat_dong', '2026-10-24 12:21:00'),
 (9, 4, 'Nguyễn Văn Tài Xế 1', 'taixe1@example.com', '0988999000', '$2y$10$abcdef1234567890abcdef', 'Quận 7, TP Hồ Chí Minh', 'hoat_dong', '2026-10-24 12:21:00'),
@@ -577,6 +584,7 @@ CREATE TABLE `tuyen_duong` (
   `khoang_cach_km` decimal(8,2) DEFAULT NULL,
   `thoi_gian_phut` int(10) UNSIGNED DEFAULT NULL,
   `gia_ve_co_ban` decimal(12,2) NOT NULL,
+  `gia_ve_giuong_nam` decimal(12,2) DEFAULT NULL,
   `trang_thai` enum('hoat_dong','tam_ngung') NOT NULL DEFAULT 'hoat_dong'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -584,18 +592,22 @@ CREATE TABLE `tuyen_duong` (
 -- Dumping data for table `tuyen_duong`
 --
 
-INSERT INTO `tuyen_duong` (`ma_tuyen`, `ten_tuyen`, `slug`, `nhom_tuyen`, `ma_diem_di`, `ma_diem_den`, `khoang_cach_km`, `thoi_gian_phut`, `gia_ve_co_ban`, `trang_thai`) VALUES
-(1, 'Sài Gòn - Bạc Liêu', 'sai-gon-bac-lieu', 'Đông Nam Bộ', 1, 2, 280.00, 360, 180000.00, 'hoat_dong'),
-(2, 'Cần Thơ - Cà Mau', 'can-tho-ca-mau', 'Đồng bằng sông Cửu Long', 3, 4, 180.00, 240, 120000.00, 'hoat_dong'),
-(3, 'Sài Gòn - Cần Thơ', 'sai-gon-can-tho', 'Đồng bằng sông Cửu Long', 1, 3, 170.00, 210, 150000.00, 'hoat_dong'),
-(4, 'Sài Gòn - Cà Mau', 'sai-gon-ca-mau', 'Đồng bằng sông Cửu Long', 1, 4, 350.00, 480, 220000.00, 'hoat_dong'),
-(5, 'Sài Gòn - Châu Đốc', 'sai-gon-chau-doc', 'Đồng bằng sông Cửu Long', 1, 5, 250.00, 360, 190000.00, 'hoat_dong'),
-(6, 'Sài Gòn - Rạch Giá', 'sai-gon-rach-gia', 'Đồng bằng sông Cửu Long', 1, 6, 280.00, 360, 200000.00, 'hoat_dong'),
-(7, 'Bạc Liêu - Sóc Trăng', 'soc-trang', 'Đồng bằng sông Cửu Long', 2, 7, 60.00, 90, 60000.00, 'hoat_dong'),
-(8, 'Bạc Liêu - Bình Dương', 'binh-duong', 'Đông Nam Bộ', 2, 8, 320.00, 420, 230000.00, 'hoat_dong'),
-(9, 'Bạc Liêu - Vũng Tàu', 'vung-tau', 'Đông Nam Bộ', 2, 9, 360.00, 480, 260000.00, 'hoat_dong'),
-(10, 'Bạc Liêu - Đà Lạt', 'da-lat', 'Tây Nguyên và Nam Trung Bộ', 2, 10, 530.00, 720, 330000.00, 'hoat_dong'),
-(11, 'Bạc Liêu - Nha Trang', 'nha-trang', 'Tây Nguyên và Nam Trung Bộ', 2, 11, 700.00, 900, 380000.00, 'hoat_dong');
+INSERT INTO `tuyen_duong` (`ma_tuyen`, `ten_tuyen`, `slug`, `nhom_tuyen`, `ma_diem_di`, `ma_diem_den`, `khoang_cach_km`, `thoi_gian_phut`, `gia_ve_co_ban`, `gia_ve_giuong_nam`, `trang_thai`) VALUES
+(1, 'Sài Gòn - Bạc Liêu', 'sai-gon-bac-lieu', 'Đông Nam Bộ', 1, 2, 280.00, 360, 180000.00, NULL, 'hoat_dong'),
+(2, 'Cần Thơ - Cà Mau', 'can-tho-ca-mau', 'Đồng bằng sông Cửu Long', 3, 4, 180.00, 240, 120000.00, NULL, 'hoat_dong'),
+(3, 'Sài Gòn - Cần Thơ', 'sai-gon-can-tho', 'Đồng bằng sông Cửu Long', 1, 3, 170.00, 210, 150000.00, NULL, 'hoat_dong'),
+(4, 'Sài Gòn - Cà Mau', 'sai-gon-ca-mau', 'Đồng bằng sông Cửu Long', 1, 4, 350.00, 480, 220000.00, NULL, 'hoat_dong'),
+(5, 'Sài Gòn - Châu Đốc', 'sai-gon-chau-doc', 'Đồng bằng sông Cửu Long', 1, 5, 250.00, 360, 190000.00, NULL, 'hoat_dong'),
+(6, 'Sài Gòn - Rạch Giá', 'sai-gon-rach-gia', 'Đồng bằng sông Cửu Long', 1, 6, 280.00, 360, 200000.00, NULL, 'hoat_dong'),
+(7, 'Bạc Liêu - Sóc Trăng', 'soc-trang', 'Đồng bằng sông Cửu Long', 2, 7, 60.00, 90, 60000.00, NULL, 'hoat_dong'),
+(8, 'Bạc Liêu - Bình Dương', 'binh-duong', 'Đông Nam Bộ', 2, 8, 320.00, 420, 230000.00, 280000.00, 'hoat_dong'),
+(9, 'Bạc Liêu - Vũng Tàu', 'vung-tau', 'Đông Nam Bộ', 2, 9, 360.00, 480, 260000.00, 310000.00, 'hoat_dong'),
+(10, 'Bạc Liêu - Đà Lạt', 'da-lat', 'Tây Nguyên và Nam Trung Bộ', 2, 10, 530.00, 720, 330000.00, 400000.00, 'hoat_dong'),
+(11, 'Bạc Liêu - Nha Trang', 'nha-trang', 'Tây Nguyên và Nam Trung Bộ', 2, 11, 700.00, 900, 380000.00, 450000.00, 'hoat_dong'),
+(12, 'Bạc Liêu - Cà Mau', 'ca-mau', 'Đồng bằng sông Cửu Long', 2, 4, 65.00, 90, 60000.00, NULL, 'hoat_dong'),
+(13, 'Bạc Liêu - Cần Thơ', 'can-tho', 'Đồng bằng sông Cửu Long', 2, 3, 120.00, 150, 110000.00, NULL, 'hoat_dong'),
+(14, 'Bạc Liêu - Rạch Giá', 'rach-gia', 'Đồng bằng sông Cửu Long', 2, 6, 190.00, 240, 140000.00, NULL, 'hoat_dong'),
+(15, 'Bạc Liêu - TP. Hồ Chí Minh', 'tp-hcm', 'Đông Nam Bộ', 2, 1, 280.00, 360, 200000.00, 250000.00, 'hoat_dong');
 
 -- --------------------------------------------------------
 

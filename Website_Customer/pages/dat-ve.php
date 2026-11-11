@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../backend/includes/config.php';
 customer_require_account('dat-ve.php');
 require_once __DIR__ . '/../backend/includes/data.php';
-require_once __DIR__ . '/../backend/controllers/BookingController.php';
+require_once __DIR__ . '/../backend/controllers/XuLyDatVe.php';
 
 $pageTitle = 'Đặt vé online';
 $pageDesc  = 'Đặt vé xe Tài Nguyên online: chọn tuyến, giờ chạy, chỗ ngồi và thanh toán.';

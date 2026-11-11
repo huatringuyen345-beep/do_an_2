@@ -2,7 +2,7 @@
 /*
  * Trang đăng nhập chung và đăng ký khách hàng.
  * Tham số area=staff giới hạn trang ở chế độ đăng nhập nhân viên, không đăng ký.
- * Logic xác thực được xử lý trong backend/controllers/AuthController.php.
+ * Logic xác thực được xử lý trong backend/controllers/DieuKhienTaiKhoan.php.
  */
 
 require_once __DIR__ . '/../backend/includes/config.php';
@@ -23,7 +23,7 @@ if (!empty($_SESSION['account']['id']) && !$staffLogin) {
     exit;
 }
 
-require_once __DIR__ . '/../backend/controllers/AuthController.php';
+require_once __DIR__ . '/../backend/controllers/DieuKhienTaiKhoan.php';
 
 $pageTitle = $staffLogin ? 'Đăng nhập nhân viên' : ($activeForm === 'register' ? 'Tạo tài khoản khách hàng' : 'Đăng nhập tài khoản');
 $pageDesc = $staffLogin

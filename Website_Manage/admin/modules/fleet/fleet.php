@@ -37,35 +37,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             admin_flash('success', $id ? 'Đã cập nhật điểm dừng.' : 'Đã thêm điểm dừng.');
         } elseif ($action === 'save_route') {
             $id = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) ?: 0;
+            $slug = admin_post_string('slug', 150);
+            $routeGroup = admin_post_string('route_group', 100);
             $name = admin_post_string('name', 150);
             $originId = filter_var($_POST['origin_id'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) ?: 0;
             $destinationId = filter_var($_POST['destination_id'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) ?: 0;
             $distanceRaw = admin_post_string('distance', 20);
             $durationRaw = admin_post_string('duration', 20);
             $priceRaw = admin_post_string('base_price', 30);
+            $bedPriceRaw = admin_post_string('bed_price', 30);
             $status = admin_post_string('status', 30);
             $distance = $distanceRaw === '' ? null : filter_var($distanceRaw, FILTER_VALIDATE_FLOAT);
             $duration = $durationRaw === '' ? null : filter_var($durationRaw, FILTER_VALIDATE_INT);
             $price = filter_var($priceRaw, FILTER_VALIDATE_FLOAT);
+            $bedPrice = $bedPriceRaw === '' ? null : filter_var($bedPriceRaw, FILTER_VALIDATE_FLOAT);
             if (
-                $name === '' || !$originId || !$destinationId || $originId === $destinationId
+                !preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/', $slug)
+                || $name === '' || !$originId || !$destinationId || $originId === $destinationId
                 || ($distanceRaw !== '' && ($distance === false || $distance < 0))
                 || ($durationRaw !== '' && ($duration === false || $duration < 0))
                 || $price === false || $price < 0
+                || ($bedPriceRaw !== '' && ($bedPrice === false || $bedPrice < 0))
                 || !admin_valid_enum($status, ['hoat_dong', 'tam_ngung'])
             ) {
                 throw new InvalidArgumentException('Vui lòng kiểm tra tên tuyến, điểm đi/đến, quãng đường, thời gian và giá vé.');
             }
             if ($id) {
                 $stmt = $conn->prepare(
-                    'UPDATE tuyen_duong SET ten_tuyen = ?, ma_diem_di = ?, ma_diem_den = ?, khoang_cach_km = ?, thoi_gian_phut = ?, gia_ve_co_ban = ?, trang_thai = ? WHERE ma_tuyen = ?'
+                    'UPDATE tuyen_duong SET slug = ?, nhom_tuyen = ?, ten_tuyen = ?, ma_diem_di = ?, ma_diem_den = ?, khoang_cach_km = ?, thoi_gian_phut = ?, gia_ve_co_ban = ?, gia_ve_giuong_nam = ?, trang_thai = ? WHERE ma_tuyen = ?'
                 );
-                $stmt->bind_param('siididsi', $name, $originId, $destinationId, $distance, $duration, $price, $status, $id);
+                $stmt->bind_param('sssiididdsi', $slug, $routeGroup, $name, $originId, $destinationId, $distance, $duration, $price, $bedPrice, $status, $id);
             } else {
                 $stmt = $conn->prepare(
-                    'INSERT INTO tuyen_duong (ten_tuyen, ma_diem_di, ma_diem_den, khoang_cach_km, thoi_gian_phut, gia_ve_co_ban, trang_thai) VALUES (?, ?, ?, ?, ?, ?, ?)'
+                    'INSERT INTO tuyen_duong (slug, nhom_tuyen, ten_tuyen, ma_diem_di, ma_diem_den, khoang_cach_km, thoi_gian_phut, gia_ve_co_ban, gia_ve_giuong_nam, trang_thai) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
                 );
-                $stmt->bind_param('siidids', $name, $originId, $destinationId, $distance, $duration, $price, $status);
+                $stmt->bind_param('sssiididds', $slug, $routeGroup, $name, $originId, $destinationId, $distance, $duration, $price, $bedPrice, $status);
             }
             $stmt->execute();
             $stmt->close();
@@ -207,18 +213,21 @@ require __DIR__ . '/../../../includes/header.php';
     <form method="post" action="fleet.php#routes" class="stack-form">
         <input type="hidden" name="csrf_token" value="<?= admin_e(admin_csrf_token()) ?>"><input type="hidden" name="action" value="save_route"><input type="hidden" name="id" value="<?= (int) ($editRoute['ma_tuyen'] ?? 0) ?>">
         <div class="grid-3">
+            <label>Mã tuyến (slug)<input name="slug" maxlength="150" pattern="[a-z0-9]+(-[a-z0-9]+)*" required value="<?= admin_e($editRoute['slug'] ?? '') ?>"></label>
+            <label>Nhóm tuyến<input name="route_group" maxlength="100" value="<?= admin_e($editRoute['nhom_tuyen'] ?? '') ?>"></label>
             <label>Tên tuyến<input name="name" maxlength="150" required value="<?= admin_e($editRoute['ten_tuyen'] ?? '') ?>"></label>
             <label>Điểm đi<select name="origin_id" required><option value="">Chọn điểm đi</option><?php foreach ($stops as $stop): ?><option value="<?= (int) $stop['ma_diem_dung'] ?>" <?= (int) ($editRoute['ma_diem_di'] ?? 0) === (int) $stop['ma_diem_dung'] ? 'selected' : '' ?>><?= admin_e($stop['ten_diem_dung'] . ' · ' . $stop['tinh_thanh']) ?></option><?php endforeach; ?></select></label>
             <label>Điểm đến<select name="destination_id" required><option value="">Chọn điểm đến</option><?php foreach ($stops as $stop): ?><option value="<?= (int) $stop['ma_diem_dung'] ?>" <?= (int) ($editRoute['ma_diem_den'] ?? 0) === (int) $stop['ma_diem_dung'] ? 'selected' : '' ?>><?= admin_e($stop['ten_diem_dung'] . ' · ' . $stop['tinh_thanh']) ?></option><?php endforeach; ?></select></label>
             <label>Khoảng cách (km)<input type="number" min="0" step="0.1" name="distance" value="<?= admin_e($editRoute['khoang_cach_km'] ?? '') ?>"></label>
             <label>Thời gian (phút)<input type="number" min="0" step="1" name="duration" value="<?= admin_e($editRoute['thoi_gian_phut'] ?? '') ?>"></label>
-            <label>Giá vé cơ bản (VNĐ)<input type="number" min="0" step="1000" name="base_price" required value="<?= admin_e($editRoute['gia_ve_co_ban'] ?? '') ?>"></label>
+            <label>Giá vé ghế ngồi (VNĐ)<input type="number" min="0" step="1000" name="base_price" required value="<?= admin_e($editRoute['gia_ve_co_ban'] ?? '') ?>"></label>
+            <label>Giá vé giường nằm (VNĐ)<input type="number" min="0" step="1000" name="bed_price" value="<?= admin_e($editRoute['gia_ve_giuong_nam'] ?? '') ?>"></label>
             <label>Trạng thái<select name="status"><option value="hoat_dong" <?= ($editRoute['trang_thai'] ?? 'hoat_dong') === 'hoat_dong' ? 'selected' : '' ?>>Hoạt động</option><option value="tam_ngung" <?= ($editRoute['trang_thai'] ?? '') === 'tam_ngung' ? 'selected' : '' ?>>Tạm ngưng</option></select></label>
         </div>
         <div class="form-actions"><button class="button button-primary" type="submit"><?= $editRoute ? 'Lưu tuyến' : 'Thêm tuyến' ?></button></div>
     </form>
-    <div class="table-wrap"><table><thead><tr><th>Tuyến</th><th>Điểm đi - đến</th><th>Khoảng cách</th><th>Giá cơ bản</th><th>Trạng thái</th><th></th></tr></thead><tbody>
-        <?php foreach ($routes as $route): ?><tr><td><strong><?= admin_e($route['ten_tuyen']) ?></strong></td><td><?= admin_e($route['diem_di'] . ' → ' . $route['diem_den']) ?></td><td><?= admin_e($route['khoang_cach_km'] === null ? '—' : $route['khoang_cach_km'] . ' km') ?></td><td><?= admin_e(admin_money($route['gia_ve_co_ban'])) ?></td><td><span class="<?= admin_e(admin_status_class($route['trang_thai'])) ?>"><?= admin_e(admin_status_label($route['trang_thai'])) ?></span></td><td><a class="button button-light button-small" href="fleet.php?edit_route=<?= (int) $route['ma_tuyen'] ?>#routes">Sửa</a></td></tr><?php endforeach; ?>
+    <div class="table-wrap"><table><thead><tr><th>Tuyến</th><th>Điểm đi - đến</th><th>Khoảng cách</th><th>Giá ghế</th><th>Giá giường</th><th>Trạng thái</th><th></th></tr></thead><tbody>
+        <?php foreach ($routes as $route): ?><tr><td><strong><?= admin_e($route['ten_tuyen']) ?></strong></td><td><?= admin_e($route['diem_di'] . ' → ' . $route['diem_den']) ?></td><td><?= admin_e($route['khoang_cach_km'] === null ? '—' : $route['khoang_cach_km'] . ' km') ?></td><td><?= admin_e(admin_money($route['gia_ve_co_ban'])) ?></td><td><?= $route['gia_ve_giuong_nam'] === null ? '—' : admin_e(admin_money($route['gia_ve_giuong_nam'])) ?></td><td><span class="<?= admin_e(admin_status_class($route['trang_thai'])) ?>"><?= admin_e(admin_status_label($route['trang_thai'])) ?></span></td><td><a class="button button-light button-small" href="fleet.php?edit_route=<?= (int) $route['ma_tuyen'] ?>#routes">Sửa</a></td></tr><?php endforeach; ?>
     </tbody></table></div>
 </section>
 

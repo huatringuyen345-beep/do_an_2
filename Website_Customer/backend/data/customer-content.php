@@ -1,5 +1,5 @@
 <?php
-/* Nội dung mẫu; xác nhận chính sách và thông tin trước khi đưa website vào dùng thật. */
+/* Du lieu mau; can xac nhan chinh sach va thong tin truoc khi dua website vao su dung that. */
 $payments = [
     'quay' => [
         'ten' => 'Thanh toán tại quầy vé',
@@ -89,16 +89,16 @@ $news = [
         ],
     ],
 ];
-$news = array_values(array_filter($news, function ($item) {
-    return empty($item['ket_thuc']) || $item['ket_thuc'] >= date('Y-m-d');
+$news = array_values(array_filter($news, function ($mucTin) {
+    return empty($mucTin['ket_thuc']) || $mucTin['ket_thuc'] >= date('Y-m-d');
 }));
 
 function find_news($id)
 {
     global $news;
-    foreach ($news as $item) {
-        if ((int)$item['id'] === (int)$id) {
-            return $item;
+    foreach ($news as $mucTin) {
+        if ((int)$mucTin['id'] === (int)$id) {
+            return $mucTin;
         }
     }
     return null;

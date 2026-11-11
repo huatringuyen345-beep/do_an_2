@@ -16,7 +16,6 @@ Website_TaiNguyen/
 │   ├── pages/                 # Trang khách hàng
 │   ├── assets/                # CSS, JavaScript, hình ảnh
 │   ├── includes/              # Header, footer và phần giao diện dùng chung
-│   └── frontend/              # URL tương thích với phiên bản cũ
 ├── Website_Manage/
 │   ├── admin/
 │   │   ├── controllers/
@@ -50,7 +49,7 @@ Các thư mục `models`, `services`, `middleware`, `helpers` và một số mod
 
 1. Đặt project trong `C:\xampp\htdocs\Website_TaiNguyen`.
 2. Khởi động **Apache** và **MySQL** trong XAMPP.
-3. Tạo database `website_tainguyen` bằng `database/website_tainguyen.sql`, hoặc chạy các file trong `database/migrations/` theo thứ tự.
+3. Tạo database `website_tainguyen` bằng `database/website_tainguyen.sql`, hoặc chạy các file trong `database/migrations/` theo thứ tự. Nếu dùng migrations trên database local, có thể chạy thêm `database/seeds/001_demo_admin.sql` để tạo tài khoản quản trị demo nếu tài khoản chưa có.
 4. Cấu hình các biến môi trường PHP/Apache theo `.env.example`. Ứng dụng đọc trực tiếp biến môi trường; `.env.example` là mẫu, không tự động được nạp.
 5. Mở trang khách hàng:
 
@@ -61,6 +60,7 @@ Các thư mục `models`, `services`, `middleware`, `helpers` và một số mod
    `http://localhost/Website_TaiNguyen/Website_Customer/pages/login.php?area=staff`
 
 Không import lại schema hoặc chạy lại migration trên database đang có dữ liệu. Sao lưu database trước khi thay đổi.
+Tài khoản quản trị demo chỉ dùng local; đổi mật khẩu ngay sau lần đăng nhập đầu và không dùng trên môi trường công khai.
 
 ## Tài liệu
 
