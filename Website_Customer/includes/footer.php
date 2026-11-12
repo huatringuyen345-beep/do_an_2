@@ -14,7 +14,7 @@
             <h2 class="footer-h">Tuyến xe</h2>
             <ul class="footer-list">
                 <?php foreach ($routes as $r): ?>
-                    <li><a href="dat-ve.php?tuyen=<?= e($r['slug']) ?>">Bạc Liêu – <?= e($r['ten']) ?></a></li>
+                    <li><a href="DatVe.php?tuyen=<?= e($r['slug']) ?>">Bạc Liêu – <?= e($r['ten']) ?></a></li>
                 <?php endforeach; ?>
             </ul>
         </div>
@@ -22,12 +22,12 @@
         <div>
             <h2 class="footer-h">Khách hàng</h2>
             <ul class="footer-list">
-                <li><a href="dat-ve.php">Đặt vé online</a></li>
-                <li><a href="lich-trinh.php">Lịch trình và giá vé</a></li>
-                <li><a href="dich-vu.php">Gửi hàng, xe trung chuyển</a></li>
-                <li><a href="ho-tro.php">Thanh toán và hỗ trợ</a></li>
-                <li><a href="tin-tuc.php">Tin tức và khuyến mãi</a></li>
-                <li><a href="tuyen-dung.php">Tuyển dụng</a></li>
+                <li><a href="DatVe.php">Đặt vé online</a></li>
+                <li><a href="LichTrinh.php">Lịch trình và giá vé</a></li>
+                <li><a href="DichVu.php">Gửi hàng, xe trung chuyển</a></li>
+                <li><a href="HoTro.php">Thanh toán và hỗ trợ</a></li>
+                <li><a href="TinTuc.php">Tin tức và khuyến mãi</a></li>
+                <li><a href="TuyenDung.php">Tuyển dụng</a></li>
             </ul>
         </div>
 

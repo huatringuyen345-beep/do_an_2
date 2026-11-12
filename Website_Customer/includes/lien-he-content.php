@@ -59,7 +59,7 @@
                         <strong><?= e($sdt) ?></strong> trong thời gian sớm nhất.
                     </p>
                 </div>
-                <a class="btn btn-line" href="lien-he.php">Gửi tin nhắn khác</a>
+                <a class="btn btn-line" href="LienHe.php">Gửi tin nhắn khác</a>
             <?php else: ?>
                 <h2 class="contact-form-title">Gửi tin nhắn</h2>
                 <?php if ($errors): ?>
@@ -72,7 +72,7 @@
                     </div>
                 <?php endif; ?>
 
-                <form method="post" action="lien-he.php#gui-tin" novalidate>
+                <form method="post" action="LienHe.php#gui-tin" novalidate>
                     <div class="form-grid">
                         <div class="field">
                             <label for="ten">Họ và tên</label>

@@ -11,27 +11,27 @@ $cur = basename($_SERVER['SCRIPT_NAME']);
 $account = $_SESSION['account'] ?? null;
 
 $pageStyles = [
-    'index.php'       => 'pages/home.css',
-    'dat-ve.php'      => 'pages/booking.css',
-    'lich-trinh.php'  => 'pages/routes.css',
-    'gioi-thieu.php'  => 'pages/gioi-thieu.css',
-    'dich-vu.php'     => 'pages/dich-vu.css',
-    'tin-tuc.php'     => 'pages/tin-tuc.css',
-    'tuyen-dung.php'  => 'pages/tuyen-dung.css',
-    'ho-tro.php'      => 'pages/ho-tro.css',
-    'lien-he.php'     => 'pages/lien-he.css',
-    'login.php'       => 'pages/account.css',
-    'tai-khoan.php'   => 'pages/account.css',
+    'Index.php'       => 'pages/home.css',
+    'DatVe.php'      => 'pages/booking.css',
+    'LichTrinh.php'  => 'pages/routes.css',
+    'GioiThieu.php'  => 'pages/gioi-thieu.css',
+    'DichVu.php'     => 'pages/dich-vu.css',
+    'TinTuc.php'     => 'pages/tin-tuc.css',
+    'TuyenDung.php'  => 'pages/tuyen-dung.css',
+    'HoTro.php'      => 'pages/ho-tro.css',
+    'LienHe.php'     => 'pages/lien-he.css',
+    'Login.php'       => 'pages/account.css',
+    'TaiKhoan.php'   => 'pages/account.css',
 ];
 
 $nav = [
-    'gioi-thieu.php' => 'Giới thiệu',
-    'lich-trinh.php' => 'Lịch trình',
-    'dich-vu.php'    => 'Dịch vụ',
-    'tin-tuc.php'    => 'Tin tức',
-    'tuyen-dung.php' => 'Tuyển dụng',
-    'ho-tro.php'     => 'Hỗ trợ',
-    'lien-he.php'    => 'Liên hệ',
+    'GioiThieu.php' => 'Giới thiệu',
+    'LichTrinh.php' => 'Lịch trình',
+    'DichVu.php'    => 'Dịch vụ',
+    'TinTuc.php'    => 'Tin tức',
+    'TuyenDung.php' => 'Tuyển dụng',
+    'HoTro.php'     => 'Hỗ trợ',
+    'LienHe.php'    => 'Liên hệ',
 ];
 
 $pageTitle = isset($pageTitle) ? $pageTitle . ' | ' . SITE_NAME : SITE_NAME . ' | Vận tải hành khách và hàng hóa Bạc Liêu';
@@ -64,7 +64,7 @@ $roleNames = [
 
 <header class="site-header">
     <div class="wrap header-in">
-        <a class="brand" href="index.php" aria-label="<?= e(SITE_NAME) ?> - Trang chủ">
+        <a class="brand" href="Index.php" aria-label="<?= e(SITE_NAME) ?> - Trang chủ">
             <svg class="brand-mark" width="42" height="42" viewBox="0 0 42 42" aria-hidden="true">
                 <rect width="42" height="42" rx="11" fill="#434777"/>
                 <path d="M14 37 18.5 5h5L28 37Z" fill="#405580"/>
@@ -109,20 +109,20 @@ $roleNames = [
                                 </div>
                             </div>
                             <div class="user-dropdown-divider"></div>
-                            <a class="user-dropdown-item" href="tai-khoan.php">
+                            <a class="user-dropdown-item" href="TaiKhoan.php">
                                 <?= icon('user', 18) ?>
                                 <span>Thông tin tài khoản</span>
                             </a>
-                            <a class="user-dropdown-item" href="tai-khoan.php?tab=ve">
+                            <a class="user-dropdown-item" href="TaiKhoan.php?tab=ve">
                                 <?= icon('ticket', 18) ?>
                                 <span>Vé xe của tôi</span>
                             </a>
-                            <a class="user-dropdown-item" href="tai-khoan.php?tab=mat-khau">
+                            <a class="user-dropdown-item" href="TaiKhoan.php?tab=mat-khau">
                                 <?= icon('lock', 18) ?>
                                 <span>Đổi mật khẩu</span>
                             </a>
                             <div class="user-dropdown-divider"></div>
-                            <form method="post" action="logout.php">
+                            <form method="post" action="Logout.php">
                                 <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
                                 <button class="user-dropdown-item user-dropdown-item-logout" type="submit">
                                     <?= icon('logout', 18) ?>
@@ -136,7 +136,7 @@ $roleNames = [
                         <a class="btn-auth-link" href="../../Website_Manage/admin/modules/bookings/bookings.php">
                             <?= icon('user', 16) ?> <span>Khu vực nhân viên</span>
                         </a>
-                        <form method="post" action="logout.php">
+                        <form method="post" action="Logout.php">
                             <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
                             <button class="btn btn-line btn-sm" type="submit">Đăng xuất</button>
                         </form>
@@ -144,16 +144,16 @@ $roleNames = [
                 <?php else: ?>
                     <!-- Trạng thái CHƯA ĐĂNG NHẬP -->
                     <div class="guest-auth-group">
-                        <a class="btn-auth-link" href="login.php"<?= $cur === 'login.php' ? ' aria-current="page"' : '' ?>>
+                        <a class="btn-auth-link" href="Login.php"<?= $cur === 'Login.php' ? ' aria-current="page"' : '' ?>>
                             <?= icon('user', 16) ?> <span>Đăng nhập</span>
                         </a>
                         <?php if (empty($staffLogin)): ?>
-                            <a class="btn btn-line btn-sm" href="login.php?mode=register"<?= $cur === 'login.php' && $activeForm === 'register' ? ' aria-current="page"' : '' ?>>Đăng ký</a>
+                            <a class="btn btn-line btn-sm" href="Login.php?mode=register"<?= $cur === 'Login.php' && $activeForm === 'register' ? ' aria-current="page"' : '' ?>>Đăng ký</a>
                         <?php endif; ?>
                     </div>
                 <?php endif; ?>
 
-                <a class="btn btn-y btn-sm btn-book" href="dat-ve.php">
+                <a class="btn btn-y btn-sm btn-book" href="DatVe.php">
                     <?= icon('ticket', 16) ?> <span>Đặt vé</span>
                 </a>
             </div>

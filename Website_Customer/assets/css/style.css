@@ -46,6 +46,12 @@ ul { margin: 0; padding: 0; }
 .wrap { width: 100%; max-width: 1280px; margin: 0 auto; padding: 0 20px; }
 .section { padding: 72px 0; }
 .section-mist { background: var(--color-surface-soft); }
+.page-head, .hero {
+    background-color: var(--color-primary-dark);
+    background-image: linear-gradient(rgba(32, 42, 72, .5), rgba(32, 42, 72, .6)), url('../images/anh_nen.png');
+    background-size: cover;
+    background-position: center;
+}
 .sec-head { margin-bottom: 36px; }
 .sec-head p { color: var(--color-text-muted); margin-bottom: 0; }
 .lead { font-size: 1.12rem; }
@@ -254,7 +260,7 @@ input:focus, select:focus, textarea:focus { outline: 3px solid rgba(135,221,221,
 .tick .icon { color: var(--color-primary-light); margin-top: 3px; }
 
 /* Shared page heading accent */
-.page-head { background: var(--color-primary-dark); color: #DDF5F5; padding: 52px 0 58px; position: relative; }
+.page-head { background-color: var(--color-primary-dark); color: #DDF5F5; padding: 52px 0 58px; position: relative; }
 .page-head h1 { color: #fff; margin-bottom: .25em; font-size: clamp(1.9rem, 4vw, 2.8rem); }
 .page-head p { margin: 0; max-width: 60ch; }
 

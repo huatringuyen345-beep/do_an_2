@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../backend/includes/config.php';
-customer_require_account('tuyen-dung.php');
+customer_require_account('TuyenDung.php');
 require_once __DIR__ . '/../backend/includes/data.php';
 require_once __DIR__ . '/../backend/controllers/XuLyTuyenDung.php';
 
@@ -41,13 +41,13 @@ include __DIR__ . '/../includes/header.php';
         <div class="panel" id="ung-tuyen">
             <?php if ($sent): ?>
                 <div class="alert alert-ok"><p><strong>Đã nhận hồ sơ.</strong> Chúng tôi sẽ gọi cho bạn qua số <?= e($sdt) ?> khi có lịch phỏng vấn.</p></div>
-                <a class="btn btn-line" href="tuyen-dung.php">Gửi hồ sơ khác</a>
+                <a class="btn btn-line" href="TuyenDung.php">Gửi hồ sơ khác</a>
             <?php else: ?>
                 <h2 style="font-size:1.3rem">Nộp hồ sơ ứng tuyển</h2>
                 <?php if ($errors): ?>
                     <div class="alert alert-bad" role="alert"><ul><?php foreach ($errors as $er): ?><li><?= e($er) ?></li><?php endforeach; ?></ul></div>
                 <?php endif; ?>
-                <form method="post" action="tuyen-dung.php#ung-tuyen" novalidate>
+                <form method="post" action="TuyenDung.php#ung-tuyen" novalidate>
                     <div class="form-grid">
                         <div class="field">
                             <label for="vi_tri">Vị trí ứng tuyển</label>

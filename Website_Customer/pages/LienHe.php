@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../backend/includes/config.php';
-customer_require_account('lien-he.php');
+customer_require_account('LienHe.php');
 require_once __DIR__ . '/../backend/includes/data.php';
 require_once __DIR__ . '/../backend/controllers/XuLyHoTro.php';
 

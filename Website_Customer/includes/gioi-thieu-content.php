@@ -18,7 +18,7 @@
             <?php foreach ($byGroup as $g => $list): ?>
                 <p style="margin-bottom:.8em"><strong><?= e($g) ?></strong><br><?= e(implode(', ', $list)) ?></p>
             <?php endforeach; ?>
-            <a href="lich-trinh.php">Xem giờ chạy và giá vé</a>
+            <a href="LichTrinh.php">Xem giờ chạy và giá vé</a>
         </div>
     </div>
 </section>
@@ -61,8 +61,8 @@
             <p class="lead">Cần đi hoặc cần gửi hàng?</p>
             <p>Đặt vé online chỉ mất vài phút, hoặc gọi trực tiếp cho chúng tôi.</p>
             <div class="hero-actions" style="margin-top:0">
-                <a class="btn btn-g" href="dat-ve.php">Đặt vé online</a>
-                <a class="btn btn-line" href="lien-he.php">Liên hệ</a>
+                <a class="btn btn-g" href="DatVe.php">Đặt vé online</a>
+                <a class="btn btn-line" href="LienHe.php">Liên hệ</a>
             </div>
         </div>
     </div>

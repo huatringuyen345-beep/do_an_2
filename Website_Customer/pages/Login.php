@@ -19,7 +19,7 @@ if (in_array($_SESSION['account']['role'] ?? '', ['quan_tri', 'nhan_vien'], true
     exit;
 }
 if (!empty($_SESSION['account']['id']) && !$staffLogin) {
-    header('Location: tai-khoan.php', true, 302);
+    header('Location: TaiKhoan.php', true, 302);
     exit;
 }
 
@@ -55,7 +55,7 @@ $pageDesc = $staffLogin
     </button>
 
     <main class="login-layout">
-        <a class="login-brand" href="index.php" aria-label="<?= e(SITE_NAME) ?> - Trang chủ">
+        <a class="login-brand" href="Index.php" aria-label="<?= e(SITE_NAME) ?> - Trang chủ">
             <span class="login-brand-mark"><?= icon('bus', 28) ?></span>
             <span><strong><?= e(SITE_NAME) ?></strong><small>VẬN TẢI BẠC LIÊU</small></span>
         </a>
@@ -96,7 +96,7 @@ $pageDesc = $staffLogin
 
             <div class="auth-forms">
                 <section class="auth-panel<?= $activeForm === 'login' ? ' is-active' : '' ?>" id="loginPanel" role="tabpanel" aria-labelledby="<?= $staffLogin ? 'authHeading' : 'loginTab' ?>"<?= $activeForm === 'login' ? '' : ' hidden' ?>>
-                    <form method="post" action="login.php<?= $staffLogin ? '?area=staff' : '' ?>" class="auth-form">
+                    <form method="post" action="Login.php<?= $staffLogin ? '?area=staff' : '' ?>" class="auth-form">
                         <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
                         <input type="hidden" name="action" value="login">
                         <input type="hidden" name="area" value="<?= $staffLogin ? 'staff' : 'customer' ?>">
@@ -140,7 +140,7 @@ $pageDesc = $staffLogin
 
                 <?php if (!$staffLogin): ?>
                     <section class="auth-panel<?= $activeForm === 'register' ? ' is-active' : '' ?>" id="registerPanel" role="tabpanel" aria-labelledby="registerTab"<?= $activeForm === 'register' ? '' : ' hidden' ?>>
-                        <form method="post" action="login.php?mode=register" class="auth-form" id="registerForm">
+                        <form method="post" action="Login.php?mode=register" class="auth-form" id="registerForm">
                             <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
                             <input type="hidden" name="action" value="register">
                             <input type="hidden" name="next" value="<?= e($authNext) ?>">
@@ -198,7 +198,7 @@ $pageDesc = $staffLogin
                 <?php endif; ?>
             </div>
 
-            <p class="auth-back"><a href="index.php">← Quay lại trang chủ</a></p>
+            <p class="auth-back"><a href="Index.php">← Quay lại trang chủ</a></p>
         </section>
         <p class="login-footer">© <?= date('Y') ?> <?= e($company['ten']) ?></p>
     </main>

@@ -14,10 +14,10 @@ HUONG DAN CHAY WEBSITE TAI NGUYEN
 5. Mo http://localhost/Website_TaiNguyen/Website_Customer/
 
 Dang nhap khach hang:
-  Website_Customer/pages/login.php
+  Website_Customer/pages/Login.php
 
 Dang nhap nhan vien/quan tri:
-  Website_Customer/pages/login.php?area=staff
+  Website_Customer/pages/Login.php?area=staff
 
 Tai khoan demo chi danh cho local; hay doi mat khau sau lan dang nhap dau.
 Khong dung tai khoan nay tren moi truong cong khai.

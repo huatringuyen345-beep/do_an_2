@@ -4,7 +4,7 @@
  * Kiem tra thong tin lien he va vi tri ung tuyen duoc chon.
  */
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
-    customer_require_account('tuyen-dung.php');
+    customer_require_account('TuyenDung.php');
 }
 // Xu ly gui ho so ung tuyen.
 $errors = [];

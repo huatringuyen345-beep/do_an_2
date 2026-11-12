@@ -2,7 +2,7 @@ HUONG DAN KHU VUC QUAN LY
 =========================
 
 Dang nhap bang tai khoan nhan_vien hoac quan_tri tai:
-  Website_Customer/pages/login.php?area=staff
+  Website_Customer/pages/Login.php?area=staff
 
 Database moi tao bang file SQL co tai khoan quan tri demo local. Neu tao
 database bang migration, chay database/seeds/001_demo_admin.sql neu can

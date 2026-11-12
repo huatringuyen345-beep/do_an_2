@@ -58,8 +58,8 @@ function old($key, $default = '')
 
 function customer_auth_next($page)
 {
-    $cacTrangDuocPhep = ['dat-ve.php', 'lien-he.php', 'tuyen-dung.php', 'tai-khoan.php'];
-    return is_string($page) && in_array($page, $cacTrangDuocPhep, true) ? $page : 'tai-khoan.php';
+    $cacTrangDuocPhep = ['DatVe.php', 'LienHe.php', 'TuyenDung.php', 'TaiKhoan.php'];
+    return is_string($page) && in_array($page, $cacTrangDuocPhep, true) ? $page : 'TaiKhoan.php';
 }
 
 function customer_require_account($next)
@@ -69,7 +69,7 @@ function customer_require_account($next)
     }
 
     $_SESSION['account_flash'] = ['error' => 'Vui lòng đăng nhập hoặc tạo tài khoản để thực hiện thao tác này.'];
-    header('Location: login.php?next=' . rawurlencode(customer_auth_next($next)), true, 303);
+    header('Location: Login.php?next=' . rawurlencode(customer_auth_next($next)), true, 303);
     exit;
 }
 

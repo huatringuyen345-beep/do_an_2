@@ -61,7 +61,7 @@ include __DIR__ . '/../includes/header.php';
             <h2>Xe trung chuyển</h2>
             <p>Không cần tự ra văn phòng. Xe nhỏ sẽ đón bạn tại nhà trong nội ô và các khu vực lân cận, đưa ra điểm xuất bến rồi lên xe lớn.</p>
             <p>Khi đặt vé online, chỉ cần đánh dấu "Đăng ký xe trung chuyển" và nhập địa chỉ. Nhân viên sẽ gọi xác nhận giờ đón.</p>
-            <a class="btn btn-g" href="dat-ve.php">Đặt vé kèm trung chuyển</a>
+            <a class="btn btn-g" href="DatVe.php">Đặt vé kèm trung chuyển</a>
         </div>
         <div class="panel">
             <h3>Dịch vụ gồm có</h3>
@@ -80,7 +80,7 @@ include __DIR__ . '/../includes/header.php';
             <h2>Khách sạn</h2>
             <p>Đi Đà Lạt, Nha Trang hay Vũng Tàu, bạn có thể đặt phòng khách sạn cùng lúc với vé xe. Tài Nguyên liên kết với các khách sạn gần điểm xe đến để bạn nghỉ ngơi ngay sau chuyến đi.</p>
             <p>Gọi hotline hoặc nhắn qua trang Liên hệ để được tư vấn phòng và giá.</p>
-            <a class="btn btn-line" href="lien-he.php">Hỏi giá phòng</a>
+            <a class="btn btn-line" href="LienHe.php">Hỏi giá phòng</a>
         </div>
         <div class="panel panel-mist">
             <h3>Điểm đến có khách sạn liên kết</h3>

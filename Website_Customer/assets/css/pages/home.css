@@ -1,9 +1,5 @@
 /* Hero */
 .hero {
-    background-color: var(--color-primary-dark);
-    background-image: linear-gradient(rgba(32, 42, 72, .5), rgba(32, 42, 72, .6)), url('../../images/anh_nen.png');
-    background-size: cover;
-    background-position: center;
     color: #fff;
     padding: 64px 0 72px;
 }

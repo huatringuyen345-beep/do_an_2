@@ -14,7 +14,7 @@ if (in_array($_SESSION['account']['role'] ?? '', ['quan_tri', 'nhan_vien'], true
 }
 if (empty($_SESSION['account']['id'])) {
     $_SESSION['account_flash'] = ['error' => 'Vui lòng đăng nhập để truy cập trang quản lý tài khoản.'];
-    header('Location: login.php?next=tai-khoan.php', true, 302);
+    header('Location: Login.php?next=TaiKhoan.php', true, 302);
     exit;
 }
 
@@ -137,7 +137,7 @@ include __DIR__ . '/../includes/header.php';
                 </p>
             </div>
             <div class="profile-actions">
-                <form id="logoutForm" method="post" action="logout.php">
+                <form id="logoutForm" method="post" action="Logout.php">
                     <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
                     <button class="btn btn-ghost btn-sm" type="button" id="btnLogoutProfile">
                         <?= icon('logout', 16) ?> <span>Đăng xuất</span>
@@ -169,20 +169,20 @@ include __DIR__ . '/../includes/header.php';
             <aside class="profile-nav-card">
                 <ul class="profile-nav-list" role="tablist">
                     <li>
-                        <a href="tai-khoan.php?tab=thong-tin" class="profile-nav-item<?= $tab === 'thong-tin' ? ' is-active' : '' ?>">
+                        <a href="TaiKhoan.php?tab=thong-tin" class="profile-nav-item<?= $tab === 'thong-tin' ? ' is-active' : '' ?>">
                             <?= icon('user', 20) ?>
                             <span>Thông tin cá nhân</span>
                         </a>
                     </li>
                     <li>
-                        <a href="tai-khoan.php?tab=ve" class="profile-nav-item<?= $tab === 've' ? ' is-active' : '' ?>">
+                        <a href="TaiKhoan.php?tab=ve" class="profile-nav-item<?= $tab === 've' ? ' is-active' : '' ?>">
                             <?= icon('ticket', 20) ?>
                             <span>Vé xe của tôi</span>
                             <span class="nav-count"><?= count($myTickets) ?></span>
                         </a>
                     </li>
                     <li>
-                        <a href="tai-khoan.php?tab=mat-khau" class="profile-nav-item<?= $tab === 'mat-khau' ? ' is-active' : '' ?>">
+                        <a href="TaiKhoan.php?tab=mat-khau" class="profile-nav-item<?= $tab === 'mat-khau' ? ' is-active' : '' ?>">
                             <?= icon('lock', 20) ?>
                             <span>Đổi mật khẩu</span>
                         </a>
@@ -190,7 +190,7 @@ include __DIR__ . '/../includes/header.php';
                 </ul>
 
                 <div class="profile-nav-footer">
-                    <a class="btn btn-y btn-sm btn-block" href="dat-ve.php">
+                    <a class="btn btn-y btn-sm btn-block" href="DatVe.php">
                         <?= icon('ticket', 16) ?> <span>Đặt thêm vé mới</span>
                     </a>
                 </div>
@@ -205,7 +205,7 @@ include __DIR__ . '/../includes/header.php';
                             <h2>Hồ sơ cá nhân</h2>
                             <p>Cập nhật thông tin để tiện cho nhân viên đón và liên hệ khi đi xe.</p>
                         </div>
-                        <form class="auth-form" method="post" action="tai-khoan.php?tab=thong-tin">
+                        <form class="auth-form" method="post" action="TaiKhoan.php?tab=thong-tin">
                             <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
                             <input type="hidden" name="action" value="update_profile">
 
@@ -259,7 +259,7 @@ include __DIR__ . '/../includes/header.php';
                                 <h2>Vé xe đã đặt</h2>
                                 <p>Danh sách các chuyến xe bạn đã đặt cùng Tài Nguyên.</p>
                             </div>
-                            <a class="btn btn-y btn-sm" href="dat-ve.php">
+                            <a class="btn btn-y btn-sm" href="DatVe.php">
                                 <?= icon('ticket', 16) ?> <span>Đặt vé mới</span>
                             </a>
                         </div>
@@ -269,7 +269,7 @@ include __DIR__ . '/../includes/header.php';
                                 <div class="empty-icon"><?= icon('ticket', 48) ?></div>
                                 <h3>Bạn chưa có vé xe nào</h3>
                                 <p>Hãy chọn tuyến đường và đặt vé ngay hôm nay để nhận nhiều ưu đãi từ Tài Nguyên.</p>
-                                <a class="btn btn-g" href="dat-ve.php">Đặt vé online ngay</a>
+                                <a class="btn btn-g" href="DatVe.php">Đặt vé online ngay</a>
                             </div>
                         <?php else: ?>
                             <div class="tickets-list">
@@ -316,7 +316,7 @@ include __DIR__ . '/../includes/header.php';
                             <p>Để bảo mật, vui lòng chọn mật khẩu mạnh có tối thiểu 8 ký tự.</p>
                         </div>
 
-                        <form class="auth-form" method="post" action="tai-khoan.php?tab=mat-khau" style="max-width: 580px;" novalidate>
+                        <form class="auth-form" method="post" action="TaiKhoan.php?tab=mat-khau" style="max-width: 580px;" novalidate>
                             <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
                             <input type="hidden" name="action" value="change_password">
 
@@ -382,7 +382,7 @@ include __DIR__ . '/../includes/header.php';
         </div>
         <div class="auth-modal-footer">
             <button class="btn btn-line btn-sm" id="cancelLogoutBtn" type="button">Ở lại</button>
-            <form method="post" action="logout.php">
+            <form method="post" action="Logout.php">
                 <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
                 <button class="btn btn-g btn-sm" type="submit" form="logoutForm">Đăng xuất ngay</button>
             </form>

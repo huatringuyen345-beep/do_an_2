@@ -4,5 +4,5 @@
  * ở website khách hàng với chế độ area=staff.
  */
 
-header('Location: ../../Website_Customer/pages/login.php?area=staff', true, 302);
+header('Location: ../../Website_Customer/pages/Login.php?area=staff', true, 302);
 exit;

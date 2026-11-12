@@ -31,7 +31,7 @@ $currentUser = $_SESSION['account'];
         </nav>
         <div class="sidebar-bottom">
             <div class="user-chip"><span class="avatar"><?= admin_e(mb_substr($currentUser['name'], 0, 1, 'UTF-8')) ?></span><span><?= admin_e($currentUser['name']) ?><small><?= admin_e($currentUser['role']) ?></small></span></div>
-            <form method="post" action="<?= admin_e(admin_project_url('Website_Customer/pages/logout.php')) ?>">
+            <form method="post" action="<?= admin_e(admin_project_url('Website_Customer/pages/Logout.php')) ?>">
                 <input type="hidden" name="csrf_token" value="<?= admin_e($_SESSION['csrf_token']) ?>">
                 <button class="logout-button" type="submit">Đăng xuất</button>
             </form>
@@ -44,7 +44,7 @@ $currentUser = $_SESSION['account'];
                 <span class="avatar avatar-small"><?= admin_e(mb_substr($currentUser['name'], 0, 1, 'UTF-8')) ?></span>
                 <span><?= admin_e($currentUser['name']) ?></span>
                 <a class="button button-light topbar-profile-link" href="<?= admin_e(admin_url('modules/users/profile.php')) ?>">Thông tin cá nhân</a>
-                <form method="post" action="<?= admin_e(admin_project_url('Website_Customer/pages/logout.php')) ?>">
+                <form method="post" action="<?= admin_e(admin_project_url('Website_Customer/pages/Logout.php')) ?>">
                     <input type="hidden" name="csrf_token" value="<?= admin_e($_SESSION['csrf_token']) ?>">
                     <button class="topbar-logout" type="submit">Đăng xuất</button>
                 </form>

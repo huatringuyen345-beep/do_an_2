@@ -4,4 +4,4 @@
  * endpoint chung đã kiểm tra POST và CSRF của website khách hàng.
  */
 
-require_once __DIR__ . '/../../Website_Customer/pages/logout.php';
+require_once __DIR__ . '/../../Website_Customer/pages/Logout.php';

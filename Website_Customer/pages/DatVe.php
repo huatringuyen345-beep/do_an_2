@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../backend/includes/config.php';
-customer_require_account('dat-ve.php');
+customer_require_account('DatVe.php');
 require_once __DIR__ . '/../backend/includes/data.php';
 require_once __DIR__ . '/../backend/controllers/XuLyDatVe.php';
 
@@ -49,11 +49,11 @@ foreach ($routes as $r) {
                         <?php if ($done['tc']): ?><div><dt>Đón tại</dt><dd><?= e($done['tc']) ?></dd></div><?php endif; ?>
                         <div><dt>Tổng tiền dự kiến</dt><dd><strong><?= money($done['tong']) ?></strong></dd></div>
                     </dl>
-                    <a class="btn btn-g btn-block" href="dat-ve.php">Đặt thêm vé khác</a>
+                    <a class="btn btn-g btn-block" href="DatVe.php">Đặt thêm vé khác</a>
                     <?php if (!empty($account)): ?>
-                        <a class="btn btn-y btn-block" href="tai-khoan.php?tab=ve">Xem danh sách vé trong tài khoản</a>
+                        <a class="btn btn-y btn-block" href="TaiKhoan.php?tab=ve">Xem danh sách vé trong tài khoản</a>
                     <?php endif; ?>
-                    <a class="btn btn-line btn-block" href="index.php">Về trang chủ</a>
+                    <a class="btn btn-line btn-block" href="Index.php">Về trang chủ</a>
                 </div>
             </div>
         <?php else: ?>
@@ -64,7 +64,7 @@ foreach ($routes as $r) {
                 </div>
             <?php endif; ?>
 
-            <form id="bookForm" method="post" action="dat-ve.php" novalidate>
+            <form id="bookForm" method="post" action="DatVe.php" novalidate>
                 <input type="hidden" name="sl" value="<?= (int)$want ?>">
                 <div class="book-grid">
                     <div>

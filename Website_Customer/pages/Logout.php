@@ -23,5 +23,5 @@ session_regenerate_id(true);
 $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 $_SESSION['account_flash'] = ['success' => 'Bạn đã đăng xuất tài khoản an toàn thành công!'];
 
-header('Location: index.php', true, 303);
+header('Location: Index.php', true, 303);
 exit;

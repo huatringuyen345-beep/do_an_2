@@ -33,24 +33,24 @@ include __DIR__ . '/../includes/header.php';
                 <p><?= e($para) ?></p>
             <?php endforeach; ?>
             <p style="margin-top:32px">
-                <a class="btn btn-line" href="tin-tuc.php">Quay lại danh sách</a>
+                <a class="btn btn-line" href="TinTuc.php">Quay lại danh sách</a>
                 <?php if ($item['loai'] === 'khuyen-mai'): ?>
-                    <a class="btn btn-y" href="dat-ve.php">Đặt vé ngay</a>
+                    <a class="btn btn-y" href="DatVe.php">Đặt vé ngay</a>
                 <?php endif; ?>
             </p>
         </article>
 
 <?php elseif ($id): ?>
-        <div class="alert alert-bad"><p>Không tìm thấy bài viết này. <a href="tin-tuc.php">Xem tất cả tin</a>.</p></div>
+        <div class="alert alert-bad"><p>Không tìm thấy bài viết này. <a href="TinTuc.php">Xem tất cả tin</a>.</p></div>
 
 <?php else:
     $list = array_values(array_filter($news, function ($n) use ($loai) { return $loai === 'all' || $n['loai'] === $loai; }));
 ?>
         <div class="toolbar">
             <div class="chips" role="navigation" aria-label="Lọc theo loại tin">
-                <a class="chip<?= $loai === 'all' ? ' is-on' : '' ?>" href="tin-tuc.php">Tất cả</a>
+                <a class="chip<?= $loai === 'all' ? ' is-on' : '' ?>" href="TinTuc.php">Tất cả</a>
                 <?php foreach ($news_types as $key => $label): ?>
-                    <a class="chip<?= $loai === $key ? ' is-on' : '' ?>" href="tin-tuc.php?loai=<?= e($key) ?>"><?= e($label) ?></a>
+                    <a class="chip<?= $loai === $key ? ' is-on' : '' ?>" href="TinTuc.php?loai=<?= e($key) ?>"><?= e($label) ?></a>
                 <?php endforeach; ?>
             </div>
         </div>
@@ -61,7 +61,7 @@ include __DIR__ . '/../includes/header.php';
             <ul class="news-list" style="max-width:820px">
                 <?php foreach ($list as $n): ?>
                     <li>
-                        <a href="tin-tuc.php?id=<?= (int)$n['id'] ?>">
+                        <a href="TinTuc.php?id=<?= (int)$n['id'] ?>">
                             <span class="tag tag-<?= e($n['loai']) ?>"><?= e($news_types[$n['loai']]) ?></span><span class="date"><?= date('d/m/Y', strtotime($n['ngay'])) ?></span>
                             <h3><?= e($n['tieu_de']) ?></h3>
                             <p class="muted" style="margin:0"><?= e($n['tom_tat']) ?></p>

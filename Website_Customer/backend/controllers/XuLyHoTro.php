@@ -8,7 +8,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 }
 
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
-    customer_require_account('lien-he.php');
+    customer_require_account('LienHe.php');
 }
 
 $errors = [];

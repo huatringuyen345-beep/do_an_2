@@ -73,7 +73,7 @@ include __DIR__ . '/../includes/header.php';
         <p>Gọi hotline hoặc gửi tin nhắn, chúng tôi sẽ trả lời bạn.</p>
         <div class="hero-actions">
             <a class="btn btn-y" href="tel:<?= preg_replace('/\D/', '', $company['hotline']) ?>"><?= icon('phone', 20) ?> <?= e($company['hotline']) ?></a>
-            <a class="btn btn-ghost" href="lien-he.php">Gửi tin nhắn</a>
+            <a class="btn btn-ghost" href="LienHe.php">Gửi tin nhắn</a>
         </div>
     </div>
 </section>

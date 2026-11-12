@@ -8,7 +8,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 }
 
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
-    customer_require_account('dat-ve.php');
+    customer_require_account('DatVe.php');
 }
 
 $duLieuYeuCau = ($_SERVER['REQUEST_METHOD'] === 'POST') ? $_POST : $_GET;

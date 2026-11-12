@@ -18,9 +18,9 @@ Project hiện có nền tảng website PHP tương đối đầy đủ cho demo
 
 Tuy vậy, các luồng cốt lõi chưa khép kín:
 
-1. **Đặt vé từ website chưa đặt chỗ trên một chuyến xe cụ thể.** Tuyến/giờ/giá và sơ đồ ghế phía khách hàng đang dùng dữ liệu tĩnh; yêu cầu chỉ ghi vào bảng `dat_ve`, thông tin ghế/chuyến được gói trong ghi chú. Chưa tạo `chi_tiet_ve`/`thanh_toan` cho yêu cầu mới và chưa kiểm tra ghế còn trống.
+1. **Đặt vé từ website chưa đặt chỗ trên một chuyến xe cụ thể.** Danh sách tuyến, giá cơ bản và giờ khởi hành phía khách hàng được đọc từ CSDL, nhưng chưa lấy chuyến chạy theo ngày từ `chuyen_xe`; sơ đồ ghế vẫn được tạo cố định ở giao diện. Yêu cầu chỉ ghi vào bảng `dat_ve`, thông tin ghế/chuyến được gói trong ghi chú. Chưa tạo `chi_tiet_ve`/`thanh_toan` cho yêu cầu mới và chưa kiểm tra ghế còn trống.
 2. **Khách hàng chưa gửi đơn dịch vụ hoặc hồ sơ ứng tuyển thực sự.** Trang dịch vụ là nội dung giới thiệu/ước tính; form tuyển dụng chỉ kiểm tra rồi báo nhận hồ sơ, không lưu dữ liệu.
-3. **Nội dung công khai chưa được vận hành từ CSDL.** Tuyến, tin tức, FAQ và vị trí tuyển dụng phía khách hàng chủ yếu lấy từ các mảng PHP; chưa thấy trang quản trị các nội dung này.
+3. **Quản trị nội dung công khai còn thiếu.** Tuyến được đọc từ CSDL; tin tức, FAQ và vị trí tuyển dụng cũng được nạp từ CSDL ở phía khách hàng. Tuy nhiên, chưa thấy trang quản trị để cập nhật các nội dung này; một số nội dung như dịch vụ và thông tin công ty vẫn khai báo tĩnh.
 4. **Admin và nhân viên dùng chung quyền thao tác.** Tài khoản cả hai vai trò vào cùng khu quản lý, chưa có phân quyền chi tiết theo nghiệp vụ.
 5. **Còn vấn đề triển khai trước production:** một số form thiếu CSRF, phản hồi liên hệ có thể báo thành công dù ghi thất bại, cấu hình thông tin kết nối/hotline còn là mẫu, và cần kiểm thử các luồng với database thật.
 
@@ -43,7 +43,7 @@ Tuy vậy, các luồng cốt lõi chưa khép kín:
 
 - **Quản lý người dùng và phân quyền:** chưa thấy giao diện tạo/sửa/khóa tài khoản, cấp vai trò, đặt lại mật khẩu nhân viên/tài xế hoặc phân quyền theo từng chức năng. Hướng dẫn hiện mô tả cấp tài khoản qua database.
 - **Tách quyền admin với nhân viên:** hiện cả `quan_tri` và `nhan_vien` đều vượt qua cùng điều kiện truy cập và thấy cùng menu. Nhân viên có thể truy cập các màn hình tuyến/đội xe/chuyến xe như admin; chưa có quy tắc “admin-only”.
-- **Quản trị nội dung website:** chưa thấy màn hình CRUD cho tin tức, khuyến mãi, FAQ, vị trí tuyển dụng, dịch vụ và thông tin công ty. Có bảng CSDL tương ứng nhưng phía khách hàng đang dùng dữ liệu PHP tĩnh.
+- **Quản trị nội dung website:** chưa thấy màn hình CRUD cho tin tức, khuyến mãi, FAQ, vị trí tuyển dụng, dịch vụ và thông tin công ty. Phía khách hàng đã đọc tin tức, FAQ và vị trí tuyển dụng từ CSDL, nhưng chưa có giao diện quản trị các nội dung đó; dịch vụ và thông tin công ty vẫn có nội dung tĩnh.
 - **Thanh toán/đối soát:** trang quản lý đặt vé có thể hiển thị giao dịch đã tồn tại, nhưng chưa thấy luồng tạo giao dịch thanh toán từ yêu cầu đặt vé của khách, đối soát với ngân hàng/cổng thanh toán hoặc hoàn tiền tự động.
 - **Báo cáo vận hành:** chưa thấy báo cáo doanh thu, số vé theo tuyến/thời gian, công nợ, tỷ lệ hủy, hiệu suất xe/tài xế hoặc xuất Excel/CSV.
 - **Nhật ký kiểm toán:** chưa thấy lịch sử ai sửa trạng thái nào, thời điểm nào, giá trị trước/sau; thông tin người xử lý hiện có ở liên hệ nhưng chưa phải audit log tổng quát.
@@ -80,7 +80,7 @@ Tuy vậy, các luồng cốt lõi chưa khép kín:
 - **Đặt vé ở mức gửi yêu cầu:** chọn tuyến, chiều đi/về, ngày, giờ, loại xe, số lượng/chỗ mong muốn, thông tin khách, phương thức thanh toán dự kiến và địa chỉ đón trung chuyển; có kiểm tra dữ liệu cơ bản.
 - **Lịch sử vé:** trang tài khoản đọc các đơn có liên kết tài khoản hoặc email khách hàng từ bảng `dat_ve`.
 - **Liên hệ:** biểu mẫu kiểm tra tên, điện thoại, email và nội dung; có thể ghi vào bảng `lien_he`.
-- Có nội dung hướng dẫn về thanh toán, chính sách, FAQ, tin tức và vị trí tuyển dụng; tuy nhiên hiện chủ yếu là nội dung tĩnh/mẫu.
+- Có nội dung hướng dẫn về thanh toán, chính sách; tin tức, FAQ và vị trí tuyển dụng được nạp từ CSDL. Một số nội dung giới thiệu/dịch vụ vẫn tĩnh hoặc mẫu và chưa có giao diện quản trị nội dung.
 
 ### Còn thiếu / cần làm
 
@@ -109,10 +109,10 @@ Các migration định nghĩa được những nhóm dữ liệu chính:
 
 ### Những điểm chưa đồng bộ với luồng khách
 
-- Khu quản lý dùng CSDL cho chuyến/xe/đơn; trang khách lại dùng danh sách tuyến và giá/giờ trong `backend/data/routes.php`.
+- Khu quản lý dùng CSDL cho chuyến/xe/đơn; phía khách cũng nạp danh sách tuyến, giá cơ bản và giờ khởi hành từ `backend/data/routes.php`. Tuy nhiên, trang đặt vé chưa lấy chuyến cụ thể theo ngày từ `chuyen_xe`; sơ đồ ghế vẫn là dữ liệu dựng cố định ở giao diện.
 - Form đặt vé chỉ ghi vào `dat_ve`; chưa nối với `chuyen_xe`, `ghe_xe`, `chi_tiet_ve` và `thanh_toan`.
 - Các bảng `dich_vu`/`dat_dich_vu`/`chi_tiet_hang` có schema và trang quản lý đơn, nhưng chưa thấy form phía khách tạo dữ liệu đơn mới.
-- Bảng `tin_tuc`, `hoi_dap`, `tuyen_dung` có schema/seed, nhưng các trang công khai đang dùng dữ liệu PHP định nghĩa sẵn.
+- Bảng `tin_tuc`, `hoi_dap`, `tuyen_dung` có schema/seed và nội dung khách hàng được nạp từ các bảng này qua `backend/data/customer-content.php`; hiện chưa thấy giao diện quản trị tương ứng. Một số nội dung công khai khác như dịch vụ/thông tin công ty vẫn khai báo tĩnh.
 - Chưa có bảng hồ sơ ứng tuyển; cần thiết kế trước khi triển khai nhận CV/tệp đính kèm.
 
 ## 6. Các vấn đề cần xử lý trước khi đưa vào sử dụng thật

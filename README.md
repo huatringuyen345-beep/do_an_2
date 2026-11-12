@@ -57,7 +57,7 @@ Các thư mục `models`, `services`, `middleware`, `helpers` và một số mod
 
    Đăng nhập nhân viên/quản trị:
 
-   `http://localhost/Website_TaiNguyen/Website_Customer/pages/login.php?area=staff`
+   `http://localhost/Website_TaiNguyen/Website_Customer/pages/Login.php?area=staff`
 
 Không import lại schema hoặc chạy lại migration trên database đang có dữ liệu. Sao lưu database trước khi thay đổi.
 Tài khoản quản trị demo chỉ dùng local; đổi mật khẩu ngay sau lần đăng nhập đầu và không dùng trên môi trường công khai.

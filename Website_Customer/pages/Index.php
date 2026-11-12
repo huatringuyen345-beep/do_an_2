@@ -23,7 +23,7 @@ foreach ($news as $n) {
 <div class="promo">
     <div class="wrap">
         <p>Khuyến mãi: <?= e($promo['tieu_de']) ?></p>
-        <a href="tin-tuc.php?id=<?= (int)$promo['id'] ?>">Xem điều kiện áp dụng</a>
+        <a href="TinTuc.php?id=<?= (int)$promo['id'] ?>">Xem điều kiện áp dụng</a>
     </div>
 </div>
 <?php endif; ?>
@@ -35,12 +35,12 @@ foreach ($news as $n) {
             <h1>Mỗi ngày, xe Tài Nguyên rời Bạc Liêu đi khắp miền Nam</h1>
             <p class="lead">Gửi yêu cầu đặt vé đi TP. Hồ Chí Minh, Bình Dương, Vũng Tàu, Đà Lạt, Nha Trang và các tỉnh đồng bằng sông Cửu Long. Có xe ghế ngồi và xe giường nằm.</p>
             <div class="hero-actions">
-                <a class="btn btn-y" href="lich-trinh.php">Xem lịch trình</a>
+                <a class="btn btn-y" href="LichTrinh.php">Xem lịch trình</a>
                 <a class="btn btn-ghost" href="tel:<?= preg_replace('/\D/', '', $company['hotline']) ?>"><?= icon('phone', 20) ?> <?= e($company['hotline']) ?></a>
             </div>
         </div>
 
-        <form class="ticket" action="dat-ve.php" method="get">
+        <form class="ticket" action="DatVe.php" method="get">
             <div class="ticket-head">
                 <h2>Tìm chuyến xe</h2>
                 <p>Chọn tuyến, ngày đi và số khách</p>
@@ -88,14 +88,14 @@ foreach ($news as $n) {
 
         <div class="fan" id="fan">
             <?php foreach ($sorted as $r): ?>
-                <a class="fan-row" href="dat-ve.php?tuyen=<?= e($r['slug']) ?>">
+                <a class="fan-row" href="DatVe.php?tuyen=<?= e($r['slug']) ?>">
                     <span class="fan-city"><?= e($r['ten']) ?></span>
                     <span class="fan-track"><i style="--w: calc(<?= round($r['km'] / $maxKm * 100) ?>% - 12px)"></i></span>
                     <span class="fan-meta"><?= (int)$r['km'] ?> km, <?= e(duration($r['gio'])) ?></span>
                 </a>
             <?php endforeach; ?>
         </div>
-        <p style="margin-top:20px"><a href="lich-trinh.php">Xem giá vé và giờ khởi hành của tất cả các tuyến</a></p>
+        <p style="margin-top:20px"><a href="LichTrinh.php">Xem giá vé và giờ khởi hành của tất cả các tuyến</a></p>
     </div>
 </section>
 
@@ -116,7 +116,7 @@ foreach ($news as $n) {
                     <li><?= icon('check', 20) ?> Chạy nhiều chuyến mỗi ngày, từ sáng sớm đến chiều</li>
                     <li><?= icon('check', 20) ?> Có xe trung chuyển đón tại nhà</li>
                 </ul>
-                <a class="btn btn-line" href="lich-trinh.php">Xem tuyến ghế ngồi</a>
+                <a class="btn btn-line" href="LichTrinh.php">Xem tuyến ghế ngồi</a>
             </article>
             <article class="type type-bed">
                 <h3>Xe giường nằm</h3>
@@ -126,7 +126,7 @@ foreach ($news as $n) {
                     <li><?= icon('check', 20) ?> Chuyến đêm, ngủ một giấc là tới nơi</li>
                     <li><?= icon('check', 20) ?> Dừng nghỉ tại trạm dừng chân dọc đường</li>
                 </ul>
-                <a class="btn btn-y" href="lich-trinh.php">Xem tuyến giường nằm</a>
+                <a class="btn btn-y" href="LichTrinh.php">Xem tuyến giường nằm</a>
             </article>
         </div>
     </div>
@@ -139,22 +139,22 @@ foreach ($news as $n) {
             <h2>Ngoài chở khách, Tài Nguyên còn làm gì?</h2>
         </div>
         <div class="svc-strip">
-            <a class="svc" href="dich-vu.php#hang-hoa">
+            <a class="svc" href="DichVu.php#hang-hoa">
                 <?= icon('box', 32) ?>
                 <h3>Vận chuyển hàng hóa</h3>
                 <p>Gửi hàng theo xe khách trên tất cả các tuyến, nhận tại văn phòng hoặc tận nơi.</p>
             </a>
-            <a class="svc" href="dich-vu.php#trung-chuyen">
+            <a class="svc" href="DichVu.php#trung-chuyen">
                 <?= icon('car', 32) ?>
                 <h3>Xe trung chuyển</h3>
                 <p>Đón và trả khách tại nhà trong nội ô, không cần tự ra bến.</p>
             </a>
-            <a class="svc" href="dich-vu.php#khach-san">
+            <a class="svc" href="DichVu.php#khach-san">
                 <?= icon('bed', 32) ?>
                 <h3>Khách sạn</h3>
                 <p>Đặt phòng kèm vé xe tại các điểm đến như Đà Lạt, Nha Trang, Vũng Tàu.</p>
             </a>
-            <a class="svc" href="dich-vu.php#tram-dung-chan">
+            <a class="svc" href="DichVu.php#tram-dung-chan">
                 <?= icon('coffee', 32) ?>
                 <h3>Trạm dừng chân</h3>
                 <p>Nghỉ ngơi, ăn uống và đi vệ sinh trên những tuyến đường dài.</p>
@@ -170,7 +170,7 @@ foreach ($news as $n) {
             <h2>Tin mới từ Tài Nguyên</h2>
         </div>
         <div class="news-grid">
-            <a class="news-lead" href="tin-tuc.php?id=<?= (int)$latest[0]['id'] ?>">
+            <a class="news-lead" href="TinTuc.php?id=<?= (int)$latest[0]['id'] ?>">
                 <p><span class="tag tag-<?= e($latest[0]['loai']) ?>"><?= e($news_types[$latest[0]['loai']]) ?></span><span class="date"><?= date('d/m/Y', strtotime($latest[0]['ngay'])) ?></span></p>
                 <h3><?= e($latest[0]['tieu_de']) ?></h3>
                 <p class="muted" style="margin:0"><?= e($latest[0]['tom_tat']) ?></p>
@@ -178,7 +178,7 @@ foreach ($news as $n) {
             <ul class="news-list">
                 <?php foreach (array_slice($latest, 1) as $n): ?>
                     <li>
-                        <a href="tin-tuc.php?id=<?= (int)$n['id'] ?>">
+                        <a href="TinTuc.php?id=<?= (int)$n['id'] ?>">
                             <span class="tag tag-<?= e($n['loai']) ?>"><?= e($news_types[$n['loai']]) ?></span><span class="date"><?= date('d/m/Y', strtotime($n['ngay'])) ?></span>
                             <h3><?= e($n['tieu_de']) ?></h3>
                         </a>
@@ -186,7 +186,7 @@ foreach ($news as $n) {
                 <?php endforeach; ?>
             </ul>
         </div>
-        <p style="margin-top:28px"><a href="tin-tuc.php">Xem tất cả tin tức và khuyến mãi</a></p>
+        <p style="margin-top:28px"><a href="TinTuc.php">Xem tất cả tin tức và khuyến mãi</a></p>
     </div>
 </section>
 
@@ -197,7 +197,7 @@ foreach ($news as $n) {
         <p>Gọi hotline, nhân viên trả lời <?= e($company['gio_mo']) ?>.</p>
         <div class="hero-actions">
             <a class="btn btn-y" href="tel:<?= preg_replace('/\D/', '', $company['hotline']) ?>"><?= icon('phone', 20) ?> <?= e($company['hotline']) ?></a>
-            <a class="btn btn-ghost" href="lien-he.php">Nhắn tin cho chúng tôi</a>
+            <a class="btn btn-ghost" href="LienHe.php">Nhắn tin cho chúng tôi</a>
         </div>
     </div>
 </section>

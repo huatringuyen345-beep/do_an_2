@@ -47,7 +47,7 @@ $groups = array_values(array_unique(array_column($routes, 'nhom')));
                         <?php if ($r['giuong']): ?><span class="price-line">Giường nằm <b><?= money($r['giuong']) ?></b></span><?php endif; ?>
                     </div>
                     <div class="go">
-                        <a class="btn btn-y btn-sm" href="dat-ve.php?tuyen=<?= e($r['slug']) ?>">Đặt vé</a>
+                        <a class="btn btn-y btn-sm" href="DatVe.php?tuyen=<?= e($r['slug']) ?>">Đặt vé</a>
                     </div>
                 </article>
             <?php endforeach; ?>
@@ -63,7 +63,7 @@ $groups = array_values(array_unique(array_column($routes, 'nhom')));
         <div>
             <h2>Điểm đón và trả khách</h2>
             <p>Khách lên xe tại văn phòng Tài Nguyên ở Bạc Liêu. Nếu ở xa, hãy đăng ký xe trung chuyển khi đặt vé để được đón tận nơi.</p>
-            <p><a class="btn btn-line" href="dich-vu.php#trung-chuyen">Tìm hiểu xe trung chuyển</a></p>
+            <p><a class="btn btn-line" href="DichVu.php#trung-chuyen">Tìm hiểu xe trung chuyển</a></p>
         </div>
         <div class="panel">
             <h3>Văn phòng Tài Nguyên</h3>

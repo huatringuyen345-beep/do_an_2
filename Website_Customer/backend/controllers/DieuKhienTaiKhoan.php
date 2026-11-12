@@ -2,7 +2,7 @@
 /*
  * Xu ly tai khoan khach hang va xac thuc nhan vien:
  * dang nhap/dang ky, dang xuat qua POST, cap nhat ho so va doi mat khau.
- * Duoc nap tu pages/login.php va pages/tai-khoan.php.
+ * Duoc nap tu pages/Login.php va pages/TaiKhoan.php.
  */
 
 if (session_status() !== PHP_SESSION_ACTIVE) {
@@ -38,6 +38,10 @@ if (empty($_SESSION['csrf_token'])) {
 
 // Nap cau hinh ket noi co so du lieu.
 require_once __DIR__ . '/../database/config.php';
+require_once __DIR__ . '/../models/NguoiDungModel.php';
+$nguoiDungModel = isset($conn) && $conn instanceof mysqli
+    ? new NguoiDungModel($conn)
+    : null;
 
 $phuongThucYeuCau = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 if ($phuongThucYeuCau === 'POST') {
@@ -52,7 +56,7 @@ if ($phuongThucYeuCau === 'POST') {
             session_regenerate_id(true);
             $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
             $_SESSION['account_flash'] = ['success' => 'Bạn đã đăng xuất tài khoản an toàn thành công.'];
-            header('Location: index.php', true, 303);
+            header('Location: Index.php', true, 303);
             exit;
         } else {
             $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
@@ -72,18 +76,9 @@ if ($phuongThucYeuCau === 'POST') {
 
         if (!$errors) {
             $nguoiDungTimThay = null;
-            if (isset($conn) && $conn instanceof mysqli) {
+            if ($nguoiDungModel !== null) {
                 try {
-                    $cauLenh = $conn->prepare(
-                        "SELECT nd.ma_nguoi_dung, nd.ho_ten, nd.email, nd.so_dien_thoai, nd.dia_chi, nd.mat_khau, nd.trang_thai, vt.ten_vai_tro
-                         FROM nguoi_dung nd
-                         INNER JOIN vai_tro vt ON vt.ma_vai_tro = nd.ma_vai_tro
-                         WHERE nd.email = ? AND vt.ten_vai_tro IN ('quan_tri', 'nhan_vien', 'khach_hang')
-                         LIMIT 1"
-                    );
-                    $cauLenh->bind_param('s', $emailNhap);
-                    $cauLenh->execute();
-                    $nguoiDungTimThay = $cauLenh->get_result()->fetch_assoc();
+                    $nguoiDungTimThay = $nguoiDungModel->findForAuthentication($emailNhap);
                 } catch (Throwable $loi) {
                     error_log('Loi co so du lieu khi dang nhap: ' . $loi->getMessage());
                 }
@@ -97,13 +92,8 @@ if ($phuongThucYeuCau === 'POST') {
                 if (!$matKhauHopLe && hash_equals($matKhauDaLuu, $matKhau)) {
                     try {
                         $maBamMatKhau = password_hash($matKhau, PASSWORD_DEFAULT);
-                        $cauLenhCapNhat = $conn->prepare(
-                            'UPDATE nguoi_dung SET mat_khau = ? WHERE ma_nguoi_dung = ? AND mat_khau = ?'
-                        );
                         $maNguoiDung = (int) $nguoiDungTimThay['ma_nguoi_dung'];
-                        $cauLenhCapNhat->bind_param('sis', $maBamMatKhau, $maNguoiDung, $matKhauDaLuu);
-                        $cauLenhCapNhat->execute();
-                        $cauLenhCapNhat->close();
+                        $nguoiDungModel->updateLegacyPassword($maNguoiDung, $matKhauDaLuu, $maBamMatKhau);
                         $matKhauHopLe = true;
                     } catch (Throwable $loi) {
                         error_log('Loi nang cap mat khau cu: ' . $loi->getMessage());
@@ -169,29 +159,24 @@ if ($phuongThucYeuCau === 'POST') {
         }
 
         if (!$errors) {
-            if (isset($conn) && $conn instanceof mysqli) {
+            if ($nguoiDungModel !== null) {
                 try {
                     // Kiem tra email da duoc su dung chua.
-                    $cauLenhKiemTra = $conn->prepare("SELECT ma_nguoi_dung FROM nguoi_dung WHERE email = ? LIMIT 1");
-                    $cauLenhKiemTra->bind_param('s', $emailNhap);
-                    $cauLenhKiemTra->execute();
-                    if ($cauLenhKiemTra->get_result()->fetch_assoc()) {
+                    if ($nguoiDungModel->emailExists($emailNhap)) {
                         $errors[] = 'Địa chỉ email này đã được sử dụng. Vui lòng đăng nhập hoặc dùng email khác.';
                     } else {
                         // Lay ma vai tro khach hang.
-                        $cauLenhVaiTro = $conn->prepare("SELECT ma_vai_tro FROM vai_tro WHERE ten_vai_tro = 'khach_hang' LIMIT 1");
-                        $cauLenhVaiTro->execute();
-                        $vaiTro = $cauLenhVaiTro->get_result()->fetch_assoc();
-                        $maVaiTro = $vaiTro ? (int)$vaiTro['ma_vai_tro'] : 3;
+                        $maVaiTro = $nguoiDungModel->findRoleId('khach_hang');
+                        $maVaiTro = $maVaiTro === null ? 3 : $maVaiTro;
 
                         $maBamMatKhau = password_hash($matKhau, PASSWORD_DEFAULT);
-                        $cauLenh = $conn->prepare(
-                            'INSERT INTO nguoi_dung (ma_vai_tro, ho_ten, email, so_dien_thoai, mat_khau, trang_thai) 
-                             VALUES (?, ?, ?, ?, ?, "hoat_dong")'
+                        $maNguoiDungMoi = $nguoiDungModel->createCustomer(
+                            $maVaiTro,
+                            $hoTen,
+                            $emailNhap,
+                            $soDienThoai,
+                            $maBamMatKhau
                         );
-                        $cauLenh->bind_param('issss', $maVaiTro, $hoTen, $emailNhap, $soDienThoai, $maBamMatKhau);
-                        $cauLenh->execute();
-                        $maNguoiDungMoi = (int)$conn->insert_id;
 
                         $_SESSION['account'] = [
                             'id'      => $maNguoiDungMoi,
@@ -234,21 +219,17 @@ if ($phuongThucYeuCau === 'POST') {
             }
 
             if (!$errors) {
-                if (isset($conn) && $conn instanceof mysqli) {
+                if ($nguoiDungModel !== null) {
                     try {
-                        $cauLenh = $conn->prepare(
-                            'UPDATE nguoi_dung SET ho_ten = ?, so_dien_thoai = ?, dia_chi = ? WHERE ma_nguoi_dung = ?'
-                        );
                         $maNguoiDung = (int)$account['id'];
-                        $cauLenh->bind_param('sssi', $hoTen, $soDienThoai, $diaChi, $maNguoiDung);
-                        $cauLenh->execute();
+                        $nguoiDungModel->updateProfile($maNguoiDung, $hoTen, $soDienThoai, $diaChi);
 
                         $_SESSION['account']['name'] = $hoTen;
                         $_SESSION['account']['phone'] = $soDienThoai;
                         $_SESSION['account']['address'] = $diaChi;
                         $_SESSION['account_flash'] = ['success' => 'Thông tin cá nhân đã được cập nhật thành công!'];
                         if (!headers_sent()) {
-                            header('Location: tai-khoan.php', true, 303);
+                            header('Location: TaiKhoan.php', true, 303);
                             exit;
                         }
                     } catch (Throwable $loi) {
@@ -273,25 +254,20 @@ if ($phuongThucYeuCau === 'POST') {
                 $errors[] = 'Mật khẩu mới xác nhận không khớp.';
             }
 
-            if (!$errors && isset($conn) && $conn instanceof mysqli) {
+            if (!$errors && $nguoiDungModel !== null) {
                 try {
                     $maNguoiDung = (int)$account['id'];
-                    $cauLenh = $conn->prepare('SELECT mat_khau FROM nguoi_dung WHERE ma_nguoi_dung = ? LIMIT 1');
-                    $cauLenh->bind_param('i', $maNguoiDung);
-                    $cauLenh->execute();
-                    $nguoiDung = $cauLenh->get_result()->fetch_assoc();
+                    $matKhauDaLuu = $nguoiDungModel->findPasswordHash($maNguoiDung);
 
-                    if (!$nguoiDung || !password_verify($matKhauCu, $nguoiDung['mat_khau'])) {
+                    if (!$matKhauDaLuu || !password_verify($matKhauCu, $matKhauDaLuu)) {
                         $errors[] = 'Mật khẩu hiện tại không chính xác.';
                     } else {
                         $maBamMatKhauMoi = password_hash($matKhauMoi, PASSWORD_DEFAULT);
-                        $cauLenhCapNhat = $conn->prepare('UPDATE nguoi_dung SET mat_khau = ? WHERE ma_nguoi_dung = ?');
-                        $cauLenhCapNhat->bind_param('si', $maBamMatKhauMoi, $maNguoiDung);
-                        $cauLenhCapNhat->execute();
+                        $nguoiDungModel->updatePasswordHash($maNguoiDung, $maBamMatKhauMoi);
 
                         $_SESSION['account_flash'] = ['success' => 'Đổi mật khẩu thành công!'];
                         if (!headers_sent()) {
-                            header('Location: tai-khoan.php?tab=mat-khau', true, 303);
+                            header('Location: TaiKhoan.php?tab=mat-khau', true, 303);
                             exit;
                         }
                     }
