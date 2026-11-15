@@ -58,7 +58,7 @@ function old($key, $default = '')
 
 function customer_auth_next($page)
 {
-    $cacTrangDuocPhep = ['DatVe.php', 'LienHe.php', 'TuyenDung.php', 'TaiKhoan.php'];
+    $cacTrangDuocPhep = ['DatVe.php', 'DatDichVu.php', 'LienHe.php', 'TuyenDung.php', 'TaiKhoan.php'];
     return is_string($page) && in_array($page, $cacTrangDuocPhep, true) ? $page : 'TaiKhoan.php';
 }
 

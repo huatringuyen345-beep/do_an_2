@@ -27,6 +27,7 @@ include __DIR__ . '/../includes/header.php';
                 <li><span>Nhân viên cân hàng, báo cước và đưa biên nhận.</span></li>
                 <li><span>Người nhận mang biên nhận hoặc báo số điện thoại để nhận hàng tại điểm đến.</span></li>
             </ol>
+            <a class="btn btn-g" href="DatDichVu.php?service=van_chuyen_hang">Đặt dịch vụ gửi hàng</a>
         </div>
         <div class="panel panel-mist">
             <h3>Ước tính cước gửi hàng</h3>
@@ -61,7 +62,8 @@ include __DIR__ . '/../includes/header.php';
             <h2>Xe trung chuyển</h2>
             <p>Không cần tự ra văn phòng. Xe nhỏ sẽ đón bạn tại nhà trong nội ô và các khu vực lân cận, đưa ra điểm xuất bến rồi lên xe lớn.</p>
             <p>Khi đặt vé online, chỉ cần đánh dấu "Đăng ký xe trung chuyển" và nhập địa chỉ. Nhân viên sẽ gọi xác nhận giờ đón.</p>
-            <a class="btn btn-g" href="DatVe.php">Đặt vé kèm trung chuyển</a>
+            <a class="btn btn-g" href="DatDichVu.php?service=trung_chuyen">Đặt dịch vụ trung chuyển</a>
+            <a class="btn btn-line" href="DatVe.php">Đặt vé kèm trung chuyển</a>
         </div>
         <div class="panel">
             <h3>Dịch vụ gồm có</h3>

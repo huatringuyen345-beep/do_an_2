@@ -13,6 +13,7 @@ $account = $_SESSION['account'] ?? null;
 $pageStyles = [
     'Index.php'       => 'pages/home.css',
     'DatVe.php'      => 'pages/booking.css',
+    'DatDichVu.php'  => 'pages/booking.css',
     'LichTrinh.php'  => 'pages/routes.css',
     'GioiThieu.php'  => 'pages/gioi-thieu.css',
     'DichVu.php'     => 'pages/dich-vu.css',
