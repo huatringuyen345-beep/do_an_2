@@ -34,3 +34,28 @@ if (!isset($conn) || !($conn instanceof mysqli)) {
         }
     }
 }
+
+function customer_payment_method_for_storage(mysqli $conn, string $method): string
+{
+    $aliases = [
+        'quay' => ['quay', 'tien_mat'],
+        'ck' => ['ck', 'chuyen_khoan'],
+        'the' => ['the', 'the_ngan_hang'],
+        'vi' => ['vi', 'vi_dien_tu'],
+    ];
+    $methods = $aliases[$method] ?? [$method];
+
+    $result = $conn->query("SHOW COLUMNS FROM `thanh_toan` LIKE 'phuong_thuc'");
+    $column = $result ? $result->fetch_assoc() : null;
+    $columnType = (string)($column['Type'] ?? '');
+
+    if (str_starts_with(strtolower($columnType), 'enum(')) {
+        foreach ($methods as $candidate) {
+            if (str_contains($columnType, "'" . $candidate . "'")) {
+                return $candidate;
+            }
+        }
+    }
+
+    return $method;
+}

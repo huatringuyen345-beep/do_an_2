@@ -21,10 +21,10 @@ if (empty($_SESSION['account']['id'])) {
 require_once __DIR__ . '/../backend/controllers/DieuKhienTaiKhoan.php';
 require_once __DIR__ . '/../backend/database/config.php';
 
-$userId = (int)$account['id'];
+$userId = (int)$taiKhoan['id'];
 
 // Lấy thông tin mới nhất của người dùng từ database
-$userData = $account;
+$userData = $taiKhoan;
 $createdAt = null;
 if (isset($conn) && $conn instanceof mysqli) {
     try {
@@ -150,17 +150,17 @@ include __DIR__ . '/../includes/header.php';
 
 <section class="section profile-section">
     <div class="wrap">
-        <?php if (!empty($errorMessage)): ?>
+        <?php if (!empty($thongBaoLoi)): ?>
             <div class="auth-alert auth-alert-error" role="alert">
                 <span class="auth-alert-icon"><?= icon('alert-circle', 20) ?></span>
-                <div class="auth-alert-content"><strong>Lỗi:</strong> <?= e($errorMessage) ?></div>
+                <div class="auth-alert-content"><strong>Lỗi:</strong> <?= e($thongBaoLoi) ?></div>
             </div>
         <?php endif; ?>
 
-        <?php if (!empty($successMessage)): ?>
+        <?php if (!empty($thongBaoThanhCong)): ?>
             <div class="auth-alert auth-alert-success" role="status">
                 <span class="auth-alert-icon"><?= icon('check-circle', 20) ?></span>
-                <div class="auth-alert-content"><strong>Thành công:</strong> <?= e($successMessage) ?></div>
+                <div class="auth-alert-content"><strong>Thành công:</strong> <?= e($thongBaoThanhCong) ?></div>
             </div>
         <?php endif; ?>
 
@@ -300,6 +300,9 @@ include __DIR__ . '/../includes/header.php';
                                             <div class="ticket-item-price">
                                                 <span class="price-label">Tổng tiền</span>
                                                 <strong class="price-val"><?= money($t['tong']) ?></strong>
+                                                <?php if (in_array($t['trang_thai'], ['cho_xac_nhan', 'da_xac_nhan', 'cho_thanh_toan'], true)): ?>
+                                                    <a class="btn btn-y btn-sm" href="ThanhToan.php?order=<?= e($t['ma']) ?>" style="margin-top: 10px;">Thanh toán</a>
+                                                <?php endif; ?>
                                             </div>
                                         </div>
                                     </div>

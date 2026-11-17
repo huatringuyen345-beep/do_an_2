@@ -8,6 +8,13 @@ require_once __DIR__ . '/../../_bootstrap.php';
 admin_require_staff();
 
 $allowedStatuses = ['cho_xac_nhan', 'da_xac_nhan', 'da_thanh_toan', 'da_huy', 'hoan_tien'];
+$paymentStatusMap = [
+    'cho_xac_nhan' => 'cho_thanh_toan',
+    'da_xac_nhan' => 'cho_thanh_toan',
+    'da_thanh_toan' => 'thanh_cong',
+    'da_huy' => 'that_bai',
+    'hoan_tien' => 'hoan_tien',
+];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     admin_verify_csrf();
     $bookingId = filter_var($_POST['booking_id'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
@@ -45,9 +52,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bind_param('si', $ticketStatus, $bookingId);
         $stmt->execute();
         $stmt->close();
+
+        if (isset($paymentStatusMap[$status])) {
+            $paymentStatus = $paymentStatusMap[$status];
+            $paymentStmt = $conn->prepare(
+                'UPDATE thanh_toan SET trang_thai = ? WHERE ma_dat_ve_id = ? ORDER BY ma_thanh_toan DESC LIMIT 1'
+            );
+            $paymentStmt->bind_param('si', $paymentStatus, $bookingId);
+            $paymentStmt->execute();
+            $paymentStmt->close();
+        }
         $conn->commit();
 
-        admin_flash('success', 'Đã cập nhật trạng thái đặt vé và các vé chi tiết.');
+        admin_flash('success', 'Đã cập nhật trạng thái đặt vé, thanh toán và vé chi tiết.');
     } catch (mysqli_sql_exception $exception) {
         $conn->rollback();
         error_log('Admin booking update failed: ' . $exception->getMessage());

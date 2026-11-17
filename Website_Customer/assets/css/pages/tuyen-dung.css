@@ -1,1 +1,50 @@
-.job-meta { font: 400 .92rem var(--font-b); color: var(--color-text-muted); display: block; margin-top: 2px; }
+/* ==========================================================
+   Tài Nguyên - Tuyển dụng (Recruitment Styling)
+   ========================================================== */
+
+.job-meta {
+    font: 500 0.88rem var(--font-b);
+    color: var(--color-primary-light);
+    display: block;
+    margin-top: 4px;
+}
+
+details {
+    background: #ffffff;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    margin-bottom: 12px;
+    overflow: hidden;
+    transition: all var(--transition-fast);
+}
+
+details:hover {
+    border-color: var(--color-primary-light);
+    box-shadow: var(--shadow-xs);
+}
+
+details[open] {
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-sm);
+}
+
+summary {
+    padding: 18px 20px;
+    background: #ffffff;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--color-text);
+}
+
+details[open] summary {
+    background: var(--color-surface-soft);
+    border-bottom: 1px solid var(--color-border);
+}
+
+details .body {
+    padding: 20px;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+}

@@ -8,7 +8,7 @@ require_once __DIR__ . '/../backend/includes/config.php';
 require_once __DIR__ . '/../backend/includes/data.php';
 
 $cur = basename($_SERVER['SCRIPT_NAME']);
-$account = $_SESSION['account'] ?? null;
+$taiKhoan = $_SESSION['account'] ?? null;
 
 $pageStyles = [
     'Index.php'       => 'pages/home.css',
@@ -89,24 +89,24 @@ $roleNames = [
             </ul>
 
             <div class="header-actions">
-                <?php if ($account && ($account['role'] ?? '') === 'khach_hang'): ?>
+                <?php if ($taiKhoan && ($taiKhoan['role'] ?? '') === 'khach_hang'): ?>
                     <!-- Trạng thái ĐÃ ĐĂNG NHẬP -->
                     <div class="user-menu-wrap" id="userMenuWrap">
                         <button class="user-pill-btn" type="button" id="userMenuBtn" aria-expanded="false" aria-haspopup="true">
-                            <span class="user-avatar"><?= mb_strtoupper(mb_substr($account['name'], 0, 1)) ?></span>
+                            <span class="user-avatar"><?= mb_strtoupper(mb_substr($taiKhoan['name'], 0, 1)) ?></span>
                             <span class="user-pill-info">
-                                <span class="user-pill-name"><?= e($account['name']) ?></span>
-                                <span class="user-pill-role"><?= e($roleNames[$account['role'] ?? 'khach_hang'] ?? 'Khách hàng') ?></span>
+                                <span class="user-pill-name"><?= e($taiKhoan['name']) ?></span>
+                                <span class="user-pill-role"><?= e($roleNames[$taiKhoan['role'] ?? 'khach_hang'] ?? 'Khách hàng') ?></span>
                             </span>
                             <span class="user-pill-caret"><?= icon('chevron-down', 16) ?></span>
                         </button>
                         <div class="user-dropdown" id="userDropdown" role="menu" aria-labelledby="userMenuBtn">
                             <div class="user-dropdown-header">
-                                <span class="user-avatar-lg"><?= mb_strtoupper(mb_substr($account['name'], 0, 1)) ?></span>
+                                <span class="user-avatar-lg"><?= mb_strtoupper(mb_substr($taiKhoan['name'], 0, 1)) ?></span>
                                 <div class="user-dropdown-meta">
-                                    <strong class="user-dropdown-name"><?= e($account['name']) ?></strong>
-                                    <span class="user-dropdown-email"><?= e($account['email']) ?></span>
-                                    <span class="user-role-badge badge-<?= e($account['role'] ?? 'khach_hang') ?>"><?= e($roleNames[$account['role'] ?? 'khach_hang'] ?? 'Khách hàng') ?></span>
+                                    <strong class="user-dropdown-name"><?= e($taiKhoan['name']) ?></strong>
+                                    <span class="user-dropdown-email"><?= e($taiKhoan['email']) ?></span>
+                                    <span class="user-role-badge badge-<?= e($taiKhoan['role'] ?? 'khach_hang') ?>"><?= e($roleNames[$taiKhoan['role'] ?? 'khach_hang'] ?? 'Khách hàng') ?></span>
                                 </div>
                             </div>
                             <div class="user-dropdown-divider"></div>
@@ -132,7 +132,7 @@ $roleNames = [
                             </form>
                         </div>
                     </div>
-                <?php elseif ($account): ?>
+                <?php elseif ($taiKhoan): ?>
                     <div class="guest-auth-group">
                         <a class="btn-auth-link" href="../../Website_Manage/admin/modules/bookings/bookings.php">
                             <?= icon('user', 16) ?> <span>Khu vực nhân viên</span>
@@ -148,8 +148,8 @@ $roleNames = [
                         <a class="btn-auth-link" href="Login.php"<?= $cur === 'Login.php' ? ' aria-current="page"' : '' ?>>
                             <?= icon('user', 16) ?> <span>Đăng nhập</span>
                         </a>
-                        <?php if (empty($staffLogin)): ?>
-                            <a class="btn btn-line btn-sm" href="Login.php?mode=register"<?= $cur === 'Login.php' && $activeForm === 'register' ? ' aria-current="page"' : '' ?>>Đăng ký</a>
+                        <?php if (empty($dangNhapNhanVien)): ?>
+                            <a class="btn btn-line btn-sm" href="Login.php?mode=register"<?= $cur === 'Login.php' && $formHienTai === 'register' ? ' aria-current="page"' : '' ?>>Đăng ký</a>
                         <?php endif; ?>
                     </div>
                 <?php endif; ?>

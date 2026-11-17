@@ -1,5 +1,9 @@
+/* ==========================================================
+   Tài Nguyên - Dịch vụ (Services Styling)
+   ========================================================== */
+
 .service-block { 
-    padding: 48px 0; 
+    padding: 56px 0; 
     border-bottom: 1px solid var(--color-border); 
 }
 .service-block:last-of-type { 
@@ -7,26 +11,58 @@
 }
 .service-block .icon { 
     color: var(--color-primary); 
-    margin-bottom: 8px; 
+    margin-bottom: 12px; 
 }
 .steps { 
     counter-reset: s; 
     list-style: none; 
     display: grid; 
-    gap: 14px; }
+
+    gap: 16px;
+    margin: 20px 0 28px;
+}
 .steps li { 
     counter-increment: s; 
     display: grid; 
     grid-template-columns: 36px 1fr; 
-    gap: 12px; 
-    align-items: start; }
+
+    gap: 14px; 
+    align-items: center;
+    font-size: 0.98rem;
+}
 .steps li::before { 
     content: counter(s); 
     width: 36px; 
+    height: 36px;
     border-radius: 50%; 
-    background: var(--color-primary); 
+
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%); 
     color: #fff; 
     display: grid; 
     place-items: center; 
-    font: 600 .95rem var(--font-h); 
+    font: 700 0.95rem var(--font-h); 
+    box-shadow: 0 3px 8px rgba(30, 58, 138, 0.25);
+}
+
+.estimate {
+    margin-top: 20px;
+    padding: 20px;
+    background: linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%);
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-md);
+    text-align: center;
+}
+.estimate span {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+    font-weight: 500;
+}
+.estimate strong {
+    display: block;
+    font-family: var(--font-h);
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--color-primary);
+    margin-top: 4px;
+    letter-spacing: -0.02em;
 }

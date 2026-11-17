@@ -11,22 +11,28 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     customer_require_account('LienHe.php');
 }
 
-$errors = [];
-$sent = false;
+$loi = [];
+$daGui = false;
 
+// Xử lý form liên hệ:
+// - validate họ tên, số điện thoại, email và nội dung
+// - lưu tin nhắn nếu dữ liệu hợp lệ
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $hoTen = trim($_POST['ten'] ?? '');
     $soDienThoai = preg_replace('/[\s.\-]/', '', $_POST['sdt'] ?? '');
     $emailLienHe = trim($_POST['email'] ?? '');
     $noiDungLienHe = trim($_POST['noi_dung'] ?? '');
 
-    if (mb_strlen($hoTen) < 2) $errors[] = 'Vui lòng nhập họ và tên.';
-    if (!preg_match('/^(0|\+84)\d{9,10}$/', $soDienThoai)) $errors[] = 'Số điện thoại chưa đúng. Ví dụ: 0912345678.';
-    if ($emailLienHe !== '' && !filter_var($emailLienHe, FILTER_VALIDATE_EMAIL)) $errors[] = 'Email chưa đúng định dạng.';
-    if (mb_strlen($noiDungLienHe) < 5) $errors[] = 'Vui lòng nhập nội dung cần liên hệ.';
+    if (mb_strlen($hoTen) < 2) $loi[] = 'Vui lòng nhập họ và tên.';
+    if (!preg_match('/^(0|\+84)\d{9,10}$/', $soDienThoai)) 
+        $loi[] = 'Số điện thoại chưa đúng. Ví dụ: 0912345678.';
+    if ($emailLienHe !== '' && !filter_var($emailLienHe, FILTER_VALIDATE_EMAIL)) 
+        $loi[] = 'Email chưa đúng định dạng.';
+    if (mb_strlen($noiDungLienHe) < 5) 
+        $loi[] = 'Vui lòng nhập nội dung cần liên hệ.';
 
-    if (!$errors) {
-        $sent = true;
+    if (!$loi) {
+        $daGui = true;
         require_once __DIR__ . '/../database/config.php';
         if (isset($conn) && $conn instanceof mysqli) {
             try {
@@ -38,8 +44,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 );
                 $cauLenh->bind_param('isssss', $maNguoiDung, $hoTen, $emailLienHe, $soDienThoai, $tieuDe, $noiDungLienHe);
                 $cauLenh->execute();
-            } catch (Throwable $loi) {
-                error_log("Loi khi luu lien he vao co so du lieu: " . $loi->getMessage());
+            } catch (Throwable $loiDuLieu) {
+                error_log("Loi khi luu lien he vao co so du lieu: " . $loiDuLieu->getMessage());
             }
         }
     }

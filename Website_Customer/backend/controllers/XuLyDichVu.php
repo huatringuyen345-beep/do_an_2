@@ -11,24 +11,28 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     customer_require_account('DatDichVu.php');
 }
 
-$errors = [];
-$successMessage = '';
+$loi = [];
+$thongBaoThanhCong = '';
 
+// Xử lý đặt dịch vụ:
+// - kiểm tra dữ liệu đầu vào
+// - xác minh mã bảo mật CSRF
+// - lưu đơn dịch vụ và chi tiết hàng hóa vào DB
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $maBaoMat = is_string($_POST['csrf_token'] ?? null) ? $_POST['csrf_token'] : '';
     if (!hash_equals($_SESSION['csrf_token'] ?? '', $maBaoMat)) {
-        $errors[] = 'Phiên làm việc đã hết hạn hoặc mã bảo mật không khớp. Vui lòng thử lại.';
+        $loi[] = 'Phiên làm việc đã hết hạn hoặc mã bảo mật không khớp. Vui lòng thử lại.';
     }
 
-    $serviceId = filter_var($_POST['service_id'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
-    $serviceSlug = strtolower(trim((string)($_POST['loai_dich_vu'] ?? '')));
-    $serviceMap = [
+    $maDichVu = filter_var($_POST['service_id'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+    $slugDichVu = strtolower(trim((string)($_POST['loai_dich_vu'] ?? '')));
+    $bangDichVu = [
         'van_chuyen_hang' => ['id' => 1, 'ten' => 'Vận chuyển hàng hóa'],
         'trung_chuyen' => ['id' => 2, 'ten' => 'Trung chuyển tận nơi'],
     ];
 
-    if ($serviceId === false && !isset($serviceMap[$serviceSlug])) {
-        $errors[] = 'Vui lòng chọn loại dịch vụ cần đặt.';
+    if ($maDichVu === false && !isset($bangDichVu[$slugDichVu])) {
+        $loi[] = 'Vui lòng chọn loại dịch vụ cần đặt.';
     }
 
     $hoTen = trim((string)($_POST['ho_ten'] ?? ''));
@@ -45,39 +49,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $ghiChu = trim((string)($_POST['ghi_chu'] ?? ''));
 
     if ($hoTen === '' || mb_strlen($hoTen) < 2) {
-        $errors[] = 'Vui lòng nhập họ và tên khách hàng.';
+        $loi[] = 'Vui lòng nhập họ và tên khách hàng.';
     }
     if (!preg_match('/^(0|\+84)\d{9,10}$/', $soDienThoai)) {
-        $errors[] = 'Số điện thoại khách hàng không hợp lệ. Ví dụ: 0912345678.';
+        $loi[] = 'Số điện thoại khách hàng không hợp lệ. Ví dụ: 0912345678.';
     }
     if ($ngaySuDung === '' || strtotime($ngaySuDung) === false) {
-        $errors[] = 'Vui lòng chọn ngày sử dụng hợp lệ.';
+        $loi[] = 'Vui lòng chọn ngày sử dụng hợp lệ.';
     }
     if ($soLuong < 1 || $soLuong > 20) {
-        $errors[] = 'Số lượng phải nằm trong khoảng từ 1 đến 20.';
+        $loi[] = 'Số lượng phải nằm trong khoảng từ 1 đến 20.';
     }
     if ($loaiHang === '') {
-        $errors[] = 'Vui lòng nhập loại hàng hoặc vật dụng cần chuyển.';
+        $loi[] = 'Vui lòng nhập loại hàng hoặc vật dụng cần chuyển.';
     }
     if ($khoiLuongKg <= 0) {
-        $errors[] = 'Khối lượng hàng phải lớn hơn 0 kg.';
+        $loi[] = 'Khối lượng hàng phải lớn hơn 0 kg.';
     }
     if ($diaChiDon === '') {
-        $errors[] = 'Vui lòng nhập địa chỉ lấy hàng hoặc địa chỉ đón.';
+        $loi[] = 'Vui lòng nhập địa chỉ lấy hàng hoặc địa chỉ đón.';
     }
-    if ($serviceSlug === 'van_chuyen_hang' && ($tenNguoiNhan === '' || !preg_match('/^(0|\+84)\d{9,10}$/', $sdtNguoiNhan) || $diaChiNhan === '')) {
-        $errors[] = 'Với dịch vụ vận chuyển hàng hóa, vui lòng nhập đầy đủ thông tin người nhận và địa chỉ giao hàng.';
+    if ($slugDichVu === 'van_chuyen_hang' && ($tenNguoiNhan === '' || !preg_match('/^(0|\+84)\d{9,10}$/', $sdtNguoiNhan) || $diaChiNhan === '')) {
+        $loi[] = 'Với dịch vụ vận chuyển hàng hóa, vui lòng nhập đầy đủ thông tin người nhận và địa chỉ giao hàng.';
     }
 
-    if (!$errors) {
+    if (!$loi) {
         require_once __DIR__ . '/../database/config.php';
 
         if (!isset($conn) || !($conn instanceof mysqli)) {
-            $errors[] = 'Không thể kết nối cơ sở dữ liệu để đăng ký dịch vụ.';
+            $loi[] = 'Không thể kết nối cơ sở dữ liệu để đăng ký dịch vụ.';
         } else {
-            $maDichVu = $serviceId ?: ($serviceMap[$serviceSlug]['id'] ?? 1);
+            $maDichVu = $maDichVu ?: ($bangDichVu[$slugDichVu]['id'] ?? 1);
             $giaThamKhao = 0.0;
-            $tenDichVu = $serviceMap[$serviceSlug]['ten'] ?? 'Dịch vụ';
+            $tenDichVu = $bangDichVu[$slugDichVu]['ten'] ?? 'Dịch vụ';
 
             $query = $conn->prepare('SELECT ma_dich_vu, ten_dich_vu, gia_tham_khao FROM dich_vu WHERE ma_dich_vu = ? AND trang_thai = "hoat_dong" LIMIT 1');
             $query->bind_param('i', $maDichVu);
@@ -118,16 +122,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $parcelStmt->close();
 
                 $conn->commit();
-                $successMessage = 'Đơn dịch vụ ' . $maDatDichVu . ' đã được ghi nhận. Nhân viên sẽ liên hệ xác nhận trong thời gian sớm nhất.';
-                $done = [
+                $thongBaoThanhCong = 'Đơn dịch vụ ' . $maDatDichVu . ' đã được ghi nhận. Nhân viên sẽ liên hệ xác nhận trong thời gian sớm nhất.';
+                $ketQuaDatDichVu = [
                     'ma_don' => $maDatDichVu,
                     'service' => $tenDichVu,
                     'price' => $tongTien,
                 ];
-            } catch (Throwable $loi) {
+            } catch (Throwable $loiDuLieu) {
                 $conn->rollback();
-                error_log('Loi khi luu dat dich vu: ' . $loi->getMessage());
-                $errors[] = 'Không thể lưu đơn dịch vụ lúc này. Vui lòng thử lại sau.';
+                error_log('Loi khi luu dat dich vu: ' . $loiDuLieu->getMessage());
+                $loi[] = 'Không thể lưu đơn dịch vụ lúc này. Vui lòng thử lại sau.';
             }
         }
     }

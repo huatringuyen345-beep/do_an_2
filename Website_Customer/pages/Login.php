@@ -7,26 +7,26 @@
 
 require_once __DIR__ . '/../backend/includes/config.php';
 
-$staffLogin = (($_GET['area'] ?? $_POST['area'] ?? '') === 'staff');
-$authNext = customer_auth_next($_POST['next'] ?? $_GET['next'] ?? '');
-$activeForm = $_POST['action'] ?? $_GET['mode'] ?? 'login';
-if (!in_array($activeForm, ['login', 'register'], true) || $staffLogin) {
-    $activeForm = 'login';
+$dangNhapNhanVien = (($_GET['area'] ?? $_POST['area'] ?? '') === 'staff');
+$duongDanSauDangNhap = customer_auth_next($_POST['next'] ?? $_GET['next'] ?? '');
+$formHienTai = $_POST['action'] ?? $_GET['mode'] ?? 'login';
+if (!in_array($formHienTai, ['login', 'register'], true) || $dangNhapNhanVien) {
+    $formHienTai = 'login';
 }
 
 if (in_array($_SESSION['account']['role'] ?? '', ['quan_tri', 'nhan_vien'], true)) {
     header('Location: ../../Website_Manage/admin/modules/bookings/bookings.php', true, 302);
     exit;
 }
-if (!empty($_SESSION['account']['id']) && !$staffLogin) {
+if (!empty($_SESSION['account']['id']) && !$dangNhapNhanVien) {
     header('Location: TaiKhoan.php', true, 302);
     exit;
 }
 
 require_once __DIR__ . '/../backend/controllers/DieuKhienTaiKhoan.php';
 
-$pageTitle = $staffLogin ? 'Đăng nhập nhân viên' : ($activeForm === 'register' ? 'Tạo tài khoản khách hàng' : 'Đăng nhập tài khoản');
-$pageDesc = $staffLogin
+$pageTitle = $dangNhapNhanVien ? 'Đăng nhập nhân viên' : ($formHienTai === 'register' ? 'Tạo tài khoản khách hàng' : 'Đăng nhập tài khoản');
+$pageDesc = $dangNhapNhanVien
     ? 'Đăng nhập để truy cập khu vực quản lý của nhân viên Tài Nguyên.'
     : 'Đăng nhập hoặc tạo tài khoản để sử dụng các dịch vụ của Tài Nguyên.';
 ?>
@@ -43,7 +43,7 @@ $pageDesc = $staffLogin
     <link rel="stylesheet" href="../assets/css/login.css">
     <script src="../assets/js/login.js" defer></script>
 </head>
-<body data-theme="dark" class="<?= $staffLogin ? 'staff-login' : '' ?>">
+<body data-theme="dark" class="<?= $dangNhapNhanVien ? 'staff-login' : '' ?>">
     <div class="login-orb login-orb-one" aria-hidden="true"></div>
     <div class="login-orb login-orb-two" aria-hidden="true"></div>
     <div class="login-orb login-orb-three" aria-hidden="true"></div>
@@ -60,53 +60,53 @@ $pageDesc = $staffLogin
             <span><strong><?= e(SITE_NAME) ?></strong><small>VẬN TẢI BẠC LIÊU</small></span>
         </a>
 
-        <?php if (!empty($successMessage)): ?>
-            <div class="login-alert login-alert-success" role="status"><?= e($successMessage) ?></div>
+        <?php if (!empty($thongBaoThanhCong)): ?>
+            <div class="login-alert login-alert-success" role="status"><?= e($thongBaoThanhCong) ?></div>
         <?php endif; ?>
-        <?php if (!empty($errors)): ?>
+        <?php if (!empty($loi)): ?>
             <div class="login-alert login-alert-error" role="alert">
-                <ul><?php foreach ($errors as $error): ?><li><?= e($error) ?></li><?php endforeach; ?></ul>
+                <ul><?php foreach ($loi as $loiChiTiet): ?><li><?= e($loiChiTiet) ?></li><?php endforeach; ?></ul>
             </div>
-        <?php elseif (!empty($errorMessage)): ?>
-            <div class="login-alert login-alert-error" role="alert"><?= e($errorMessage) ?></div>
+        <?php elseif (!empty($thongBaoLoi)): ?>
+            <div class="login-alert login-alert-error" role="alert"><?= e($thongBaoLoi) ?></div>
         <?php endif; ?>
 
         <section class="login-card" id="loginCard" aria-labelledby="authHeading">
             <div class="login-card-glow" aria-hidden="true"></div>
             <header class="login-card-header">
                 <span class="login-icon"><?= icon('bus', 30) ?></span>
-                <p class="login-eyebrow"><?= $staffLogin ? 'CỔNG NHÂN VIÊN' : 'TÀI KHOẢN TÀI NGUYÊN' ?></p>
-                <h1 id="authHeading"><?= $staffLogin ? 'Chào mừng trở lại' : ($activeForm === 'register' ? 'Tạo tài khoản mới' : 'Chào mừng trở lại') ?></h1>
-                <p id="authSubheading"><?= $staffLogin
+                <p class="login-eyebrow"><?= $dangNhapNhanVien ? 'CỔNG NHÂN VIÊN' : 'TÀI KHOẢN TÀI NGUYÊN' ?></p>
+                <h1 id="authHeading"><?= $dangNhapNhanVien ? 'Chào mừng trở lại' : ($formHienTai === 'register' ? 'Tạo tài khoản mới' : 'Chào mừng trở lại') ?></h1>
+                <p id="authSubheading"><?= $dangNhapNhanVien
                     ? 'Đăng nhập để quản lý hoạt động vận tải.'
-                    : ($activeForm === 'register' ? 'Tạo tài khoản để quản lý vé và sử dụng dịch vụ.' : 'Đăng nhập để đặt vé và quản lý chuyến đi của bạn.') ?></p>
+                    : ($formHienTai === 'register' ? 'Tạo tài khoản để quản lý vé và sử dụng dịch vụ.' : 'Đăng nhập để đặt vé và quản lý chuyến đi của bạn.') ?></p>
             </header>
 
-            <?php if (!$staffLogin): ?>
+            <?php if (!$dangNhapNhanVien): ?>
                 <div class="auth-tabs" role="tablist" aria-label="Đăng nhập hoặc tạo tài khoản">
-                    <span class="auth-tab-slider<?= $activeForm === 'register' ? ' is-register' : '' ?>" id="authTabSlider" aria-hidden="true"></span>
-                    <button class="auth-tab<?= $activeForm === 'login' ? ' is-active' : '' ?>" id="loginTab" type="button" role="tab" aria-selected="<?= $activeForm === 'login' ? 'true' : 'false' ?>" aria-controls="loginPanel">
+                    <span class="auth-tab-slider<?= $formHienTai === 'register' ? ' is-register' : '' ?>" id="authTabSlider" aria-hidden="true"></span>
+                    <button class="auth-tab<?= $formHienTai === 'login' ? ' is-active' : '' ?>" id="loginTab" type="button" role="tab" aria-selected="<?= $formHienTai === 'login' ? 'true' : 'false' ?>" aria-controls="loginPanel">
                         <?= icon('user', 17) ?> Đăng nhập
                     </button>
-                    <button class="auth-tab<?= $activeForm === 'register' ? ' is-active' : '' ?>" id="registerTab" type="button" role="tab" aria-selected="<?= $activeForm === 'register' ? 'true' : 'false' ?>" aria-controls="registerPanel">
+                    <button class="auth-tab<?= $formHienTai === 'register' ? ' is-active' : '' ?>" id="registerTab" type="button" role="tab" aria-selected="<?= $formHienTai === 'register' ? 'true' : 'false' ?>" aria-controls="registerPanel">
                         <?= icon('edit', 17) ?> Tạo tài khoản
                     </button>
                 </div>
             <?php endif; ?>
 
             <div class="auth-forms">
-                <section class="auth-panel<?= $activeForm === 'login' ? ' is-active' : '' ?>" id="loginPanel" role="tabpanel" aria-labelledby="<?= $staffLogin ? 'authHeading' : 'loginTab' ?>"<?= $activeForm === 'login' ? '' : ' hidden' ?>>
-                    <form method="post" action="Login.php<?= $staffLogin ? '?area=staff' : '' ?>" class="auth-form">
+                <section class="auth-panel<?= $formHienTai === 'login' ? ' is-active' : '' ?>" id="loginPanel" role="tabpanel" aria-labelledby="<?= $dangNhapNhanVien ? 'authHeading' : 'loginTab' ?>"<?= $formHienTai === 'login' ? '' : ' hidden' ?>>
+                    <form method="post" action="Login.php<?= $dangNhapNhanVien ? '?area=staff' : '' ?>" class="auth-form">
                         <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
                         <input type="hidden" name="action" value="login">
-                        <input type="hidden" name="area" value="<?= $staffLogin ? 'staff' : 'customer' ?>">
-                        <input type="hidden" name="next" value="<?= e($authNext) ?>">
+                        <input type="hidden" name="area" value="<?= $dangNhapNhanVien ? 'staff' : 'customer' ?>">
+                        <input type="hidden" name="next" value="<?= e($duongDanSauDangNhap) ?>">
 
                         <div class="auth-field">
                             <label for="loginEmail">Email</label>
                             <div class="auth-input-wrap">
                                 <span class="field-icon"><?= icon('mail', 19) ?></span>
-                                <input type="email" id="loginEmail" name="email" class="auth-input" placeholder="<?= $staffLogin ? 'Email nhân viên' : 'tenban@example.com' ?>" autocomplete="username" maxlength="150" required value="<?= old('email') ?>">
+                                <input type="email" id="loginEmail" name="email" class="auth-input" placeholder="<?= $dangNhapNhanVien ? 'Email nhân viên' : 'tenban@example.com' ?>" autocomplete="username" maxlength="150" required value="<?= old('email') ?>">
                             </div>
                         </div>
 
@@ -121,16 +121,16 @@ $pageDesc = $staffLogin
 
                         <div class="auth-form-meta">
                             <label class="remember-option"><input type="checkbox" name="remember" value="1"><span>Ghi nhớ tôi</span></label>
-                            <?php if (!$staffLogin): ?><a class="forgot-link" href="#quen-mat-khau" id="forgotLink">Quên mật khẩu?</a><?php endif; ?>
+                            <?php if (!$dangNhapNhanVien): ?><a class="forgot-link" href="#quen-mat-khau" id="forgotLink">Quên mật khẩu?</a><?php endif; ?>
                         </div>
 
                         <button class="auth-submit" type="submit">
-                            <span class="submit-label"><?= $staffLogin ? 'Đăng nhập khu quản lý' : 'Đăng nhập' ?> <?= icon('chevron-down', 17) ?></span>
+                            <span class="submit-label"><?= $dangNhapNhanVien ? 'Đăng nhập khu quản lý' : 'Đăng nhập' ?> <?= icon('chevron-down', 17) ?></span>
                             <span class="submit-spinner" aria-hidden="true"></span>
                         </button>
                     </form>
 
-                    <?php if (!$staffLogin): ?>
+                    <?php if (!$dangNhapNhanVien): ?>
                         <div class="demo-accounts">
                             <strong>Tài khoản dùng thử</strong>
                             <p>Tạo tài khoản khách hàng tại đây. Tài khoản nhân viên và quản trị cần được cấp riêng trên môi trường local.</p>
@@ -138,12 +138,12 @@ $pageDesc = $staffLogin
                     <?php endif; ?>
                 </section>
 
-                <?php if (!$staffLogin): ?>
-                    <section class="auth-panel<?= $activeForm === 'register' ? ' is-active' : '' ?>" id="registerPanel" role="tabpanel" aria-labelledby="registerTab"<?= $activeForm === 'register' ? '' : ' hidden' ?>>
+                <?php if (!$dangNhapNhanVien): ?>
+                    <section class="auth-panel<?= $formHienTai === 'register' ? ' is-active' : '' ?>" id="registerPanel" role="tabpanel" aria-labelledby="registerTab"<?= $formHienTai === 'register' ? '' : ' hidden' ?>>
                         <form method="post" action="Login.php?mode=register" class="auth-form" id="registerForm">
                             <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
                             <input type="hidden" name="action" value="register">
-                            <input type="hidden" name="next" value="<?= e($authNext) ?>">
+                            <input type="hidden" name="next" value="<?= e($duongDanSauDangNhap) ?>">
 
                             <div class="auth-field">
                                 <label for="registerName">Họ và tên</label>
@@ -203,7 +203,7 @@ $pageDesc = $staffLogin
         <p class="login-footer">© <?= date('Y') ?> <?= e($company['ten']) ?></p>
     </main>
 
-    <?php if (!$staffLogin): ?>
+    <?php if (!$dangNhapNhanVien): ?>
         <div class="auth-modal" id="forgotModal" hidden>
             <div class="modal-backdrop" data-close-modal></div>
             <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="forgotHeading">
