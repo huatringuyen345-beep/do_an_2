@@ -3,9 +3,7 @@
  * Xu ly va kiem tra yeu cau dat ve cua khach hang.
  * Tao ban ghi dat ve trong co so du lieu va luu thong tin vua dat vao phien.
  */
-if (session_status() !== PHP_SESSION_ACTIVE) {
-    session_start();
-}
+require_once __DIR__ . '/../bootstrap.php';
 
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     customer_require_account('DatVe.php');
@@ -19,7 +17,8 @@ function route_label($tuyenHienTai, $direction)
     return $direction === 've' ? $tuyenHienTai['ten'] . ' – Bạc Liêu' : 'Bạc Liêu – ' . $tuyenHienTai['ten'];
 }
 
-$tuyenHienTai = find_route($duLieuYeuCau['tuyen'] ?? '') ?? find_route('tp-hcm');
+$tuyenHienTai = $tuyenDuongModel->findRoute($duLieuYeuCau['tuyen'] ?? '', $routes)
+    ?? $tuyenDuongModel->findRoute('tp-hcm', $routes);
 $chieu = (($duLieuYeuCau['chieu'] ?? 'di') === 've') ? 've' : 'di';
 
 $ngay = $duLieuYeuCau['ngay'] ?? date('Y-m-d');
@@ -37,6 +36,34 @@ $soLuongMuonDat = max(1, min(10, (int)($duLieuYeuCau['sl'] ?? 1)));
 $loi = [];
 $ketQuaDatVe = null;
 $seatsPosted = '';
+$thongTinChoNgoi = [
+    'ma_chuyen' => null,
+    'trang_thai' => 'mo_ban',
+    'suc_chua' => 0,
+    'so_ghe_da_dat' => 0,
+    'so_ghe_con_trong' => 0,
+    'ghe_da_dat' => [],
+];
+
+if (isset($conn) && $conn instanceof mysqli) {
+    try {
+        require_once __DIR__ . '/../models/DatVeModel.php';
+        $datVeModelDanhsachGhe = new DatVeModel($conn);
+        $thongTinChoNgoi = $datVeModelDanhsachGhe->layThongTinChoNgoi(
+            $tuyenHienTai['slug'],
+            $ngay,
+            $gio,
+            $loai
+        );
+    } catch (Throwable $loiGhe) {
+        error_log('Loi khi tai thong tin cho ngoi: ' . $loiGhe->getMessage());
+        $loi[] = 'Không thể tải sức chứa và tình trạng ghế của chuyến. Vui lòng tải lại trang.';
+    }
+} else {
+    $loi[] = 'Không thể kết nối cơ sở dữ liệu để kiểm tra tình trạng ghế.';
+}
+$sucChua = (int)$thongTinChoNgoi['suc_chua'];
+$gheDaDat = $thongTinChoNgoi['ghe_da_dat'];
 
 // Xử lý yêu cầu đặt vé:
 // - kiểm tra thông tin khách hàng
@@ -46,25 +73,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $hoTen = trim($_POST['ten'] ?? '');
     $soDienThoai = preg_replace('/[\s.\-]/', '', $_POST['sdt'] ?? '');
     $emailLienHe = trim($_POST['email'] ?? '');
+    $ghiChuKhachHang = trim($_POST['ghi_chu'] ?? '');
     $phuongThucThanhToan = $_POST['thanh_toan'] ?? '';
     $coXeTrungChuyen = !empty($_POST['trung_chuyen']);
     $diaChiDon = trim($_POST['dia_chi_don'] ?? '');
 
     $danhSachGhe = array_values(array_unique(array_filter(array_map('trim', explode(',', $_POST['ghe'] ?? '')))));
     $seatsPosted = implode(',', $danhSachGhe);
-    $tienToGhe = $loai === 'ghe' ? ['G'] : ['D', 'T'];
     $maGheHopLe = [];
-    foreach ($tienToGhe as $tienTo) {
-        $soLuongCho = $loai === 'ghe' ? 32 : 18;
-        for ($soThuTu = 1; $soThuTu <= $soLuongCho; $soThuTu++) {
-            $maGheHopLe[] = $tienTo . str_pad((string)$soThuTu, 2, '0', STR_PAD_LEFT);
+    if ($loai === 'ghe') {
+        for ($soThuTu = 1; $soThuTu <= $sucChua; $soThuTu++) {
+            $maGheHopLe[] = 'G' . str_pad((string)$soThuTu, 2, '0', STR_PAD_LEFT);
+        }
+    } else {
+        $soGiuongTangDuoi = (int)ceil($sucChua / 2);
+        $soGiuongTangTren = (int)floor($sucChua / 2);
+        foreach (['D' => $soGiuongTangDuoi, 'T' => $soGiuongTangTren] as $tienTo => $soLuongCho) {
+            for ($soThuTu = 1; $soThuTu <= $soLuongCho; $soThuTu++) {
+                $maGheHopLe[] = $tienTo . str_pad((string)$soThuTu, 2, '0', STR_PAD_LEFT);
+            }
         }
     }
+    if ($sucChua < 1) $loi[] = 'Chuyến xe chưa có sức chứa ghế hợp lệ.';
     foreach ($danhSachGhe as $maGhe) {
         if (!in_array($maGhe, $maGheHopLe, true)) {
             $loi[] = 'Mã chỗ ngồi không hợp lệ.';
             break;
         }
+    }
+    if (array_intersect($danhSachGhe, $gheDaDat)) {
+        $loi[] = 'Một hoặc nhiều ghế vừa được khách khác đặt. Vui lòng tải lại sơ đồ ghế.';
+    }
+    if (count($danhSachGhe) + count($gheDaDat) > $sucChua) {
+        $loi[] = 'Chuyến xe không còn đủ chỗ. Vui lòng tải lại sơ đồ ghế.';
+    }
+    if (!in_array($thongTinChoNgoi['trang_thai'], ['mo_ban', 'het_cho'], true)) {
+        $loi[] = 'Chuyến xe không còn mở bán.';
     }
 
     if ($hoTen === '' || mb_strlen($hoTen) < 2) $loi[] = 'Vui lòng nhập họ và tên.';
@@ -77,7 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($coXeTrungChuyen && $diaChiDon === '') $loi[] = 'Bạn đã chọn xe trung chuyển, vui lòng nhập địa chỉ đón.';
 
     if (!$loi) {
-        require_once __DIR__ . '/../database/config.php';
+        require_once __DIR__ . '/../bootstrap.php';
         if (!isset($conn) || !($conn instanceof mysqli)) {
             $loi[] = 'Hệ thống chưa thể ghi nhận yêu cầu đặt vé. Vui lòng thử lại sau hoặc liên hệ nhà xe.';
         } else {
@@ -85,32 +129,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $tongTien = $giaVe * count($danhSachGhe);
             $maDatVe = 'TN' . strtoupper(substr(md5(uniqid('', true)), 0, 6));
             $maNguoiDung = isset($_SESSION['account']['id']) ? (int)$_SESSION['account']['id'] : null;
-            $danhSachGheText = implode(', ', $danhSachGhe);
-            $ghiChu = "Tuyến: " . route_label($tuyenHienTai, $chieu) . " | Ngày: " . date('d/m/Y', strtotime($ngay)) . " lúc $gio | Loại: " . ($loai === 'ghe' ? 'Ghế ngồi' : 'Giường nằm') . " | Ghế: $danhSachGheText | TT dự kiến: " . $payments[$phuongThucThanhToan]['ten'];
-            if ($coXeTrungChuyen && $diaChiDon) {
-                $ghiChu .= " | Đón: $diaChiDon";
+            $ghiChu = $ghiChuKhachHang;
+            if ($coXeTrungChuyen && $diaChiDon !== '') {
+                $ghiChu .= ($ghiChu !== '' ? ' | ' : '') . 'Địa chỉ đón: ' . $diaChiDon;
             }
 
             try {
-                $cauLenh = $conn->prepare(
-                    "INSERT INTO dat_ve (ma_dat_ve, ma_nguoi_dung, ten_khach_hang, sdt_khach_hang, email_khach_hang, tong_tien, thanh_tien, trang_thai, ghi_chu)
-                     VALUES (?, ?, ?, ?, ?, ?, ?, 'cho_xac_nhan', ?)"
+                require_once __DIR__ . '/../models/DatVeModel.php';
+                require_once __DIR__ . '/../models/ThanhToanModel.php';
+                $datVeModel = new DatVeModel($conn);
+                $thanhToanModel = new ThanhToanModel($conn);
+
+                $conn->begin_transaction();
+                $maChuyen = $datVeModel->taoHoacLayChuyen(
+                    $tuyenHienTai['slug'],
+                    $ngay,
+                    $gio,
+                    $loai,
+                    (float)$giaVe
                 );
-                $cauLenh->bind_param('sisssdds', $maDatVe, $maNguoiDung, $hoTen, $soDienThoai, $emailLienHe, $tongTien, $tongTien, $ghiChu);
-                $cauLenh->execute();
-                $maDatVeId = (int) $conn->insert_id;
-                $cauLenh->close();
+                $datVeModel->kiemTraChoNgoiTrong($maChuyen, $danhSachGhe);
+                $maDatVeId = $datVeModel->taoDonDatVe($maDatVe, $maNguoiDung, $hoTen, $soDienThoai, $emailLienHe, $tongTien, $ghiChu);
+                foreach ($danhSachGhe as $maGhe) {
+                    $maGheId = $datVeModel->layHoacTaoMaGhe($maChuyen, $maGhe);
+                    $datVeModel->taoChiTietVe($maDatVeId, $maChuyen, $maGheId, (float)$giaVe);
+                }
+                $datVeModel->capNhatTrangThaiChoNgoi($maChuyen);
 
                 $maGiaoDich = 'TN-' . $maDatVe . '-' . date('YmdHis');
                 $ghiChuThanhToan = 'Đặt vé ' . $maDatVe . ' · ' . ($payments[$phuongThucThanhToan]['ten'] ?? 'Thanh toán tại quầy') . ' · ' . count($danhSachGhe) . ' ghế';
-                $phuongThucLuu = customer_payment_method_for_storage($conn, $phuongThucThanhToan);
-                $stmtThanhToan = $conn->prepare(
-                    "INSERT INTO thanh_toan (ma_dat_ve_id, ma_giao_dich, phuong_thuc, so_tien, trang_thai, ghi_chu)
-                     VALUES (?, ?, ?, ?, 'cho_thanh_toan', ?)"
-                );
-                $stmtThanhToan->bind_param('issds', $maDatVeId, $maGiaoDich, $phuongThucLuu, $tongTien, $ghiChuThanhToan);
-                $stmtThanhToan->execute();
-                $stmtThanhToan->close();
+                $phuongThucLuu = $thanhToanModel->phuongThucLuu($phuongThucThanhToan);
+                $thanhToanModel->taoThanhToan($maDatVeId, $maGiaoDich, $phuongThucLuu, $tongTien, $ghiChuThanhToan);
+                $conn->commit();
 
                 $ketQuaDatVe = [
                     'ma' => $maDatVe,
@@ -125,6 +175,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'email' => $emailLienHe,
                     'tt' => $payments[$phuongThucThanhToan]['ten'],
                     'tc' => $coXeTrungChuyen ? $diaChiDon : '',
+                    'ghi_chu' => $ghiChuKhachHang,
                     'payment_status' => 'cho_thanh_toan',
                     'created_at' => date('Y-m-d H:i:s'),
                 ];
@@ -134,8 +185,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 array_unshift($_SESSION['my_bookings'], $ketQuaDatVe);
             } catch (Throwable $loiDuLieu) {
+                if (isset($conn) && $conn instanceof mysqli) {
+                    $conn->rollback();
+                }
                 error_log("Loi khi luu dat ve vao MySQL: " . $loiDuLieu->getMessage());
-                $loi[] = 'Chưa thể lưu yêu cầu đặt vé lúc này. Vui lòng thử lại sau hoặc liên hệ nhà xe.';
+                $loi[] = $loiDuLieu instanceof DomainException
+                    ? $loiDuLieu->getMessage()
+                    : 'Chưa thể lưu yêu cầu đặt vé lúc này. Vui lòng thử lại sau hoặc liên hệ nhà xe.';
             }
         }
     }

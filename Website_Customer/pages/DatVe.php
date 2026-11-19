@@ -1,8 +1,8 @@
 <?php
-require_once __DIR__ . '/../backend/includes/config.php';
+require_once __DIR__ . '/../backend/bootstrap.php';
 customer_require_account('DatVe.php');
-require_once __DIR__ . '/../backend/includes/data.php';
-require_once __DIR__ . '/../backend/controllers/XuLyDatVe.php';
+require_once __DIR__ . '/../backend/data/loader.php';
+require_once __DIR__ . '/../backend/controllers/DatVeController.php';
 
 $pageTitle = 'Đặt vé online';
 $pageDesc  = 'Đặt vé xe Tài Nguyên online: chọn tuyến, giờ chạy, chỗ ngồi và thanh toán.';
@@ -54,6 +54,9 @@ foreach ($routes as $r) {
                         <div><dt><?= icon('ticket', 18) ?> Chỗ đã chọn</dt><dd><span class="tag tag-khuyen-mai" style="font-size:0.95rem;"><?= e(implode(', ', $ketQuaDatVe['seats'])) ?></span></dd></div>
                         <div><dt><?= icon('user', 18) ?> Hành khách</dt><dd><?= e($ketQuaDatVe['ten']) ?></dd></div>
                         <div><dt><?= icon('card', 18) ?> Hình thức thanh toán</dt><dd><?= e($ketQuaDatVe['tt']) ?></dd></div>
+                        <?php if (!empty($ketQuaDatVe['ghi_chu'])): ?>
+                            <div><dt><?= icon('edit', 18) ?> Ghi chú</dt><dd><?= e($ketQuaDatVe['ghi_chu']) ?></dd></div>
+                        <?php endif; ?>
                         <?php if ($ketQuaDatVe['tc']): ?>
                             <div><dt><?= icon('pin', 18) ?> Đón tận nhà</dt><dd><?= e($ketQuaDatVe['tc']) ?></dd></div>
                         <?php endif; ?>
@@ -184,6 +187,7 @@ foreach ($routes as $r) {
                                 <span><i class="i-taken"></i> Chỗ đã có người đặt</span>
                             </div>
 
+                            <p class="hint" id="seatAvailability" role="status" style="margin-bottom:12px;"></p>
                             <div id="seatmap" class="seatmap" aria-live="polite"></div>
                             <input type="hidden" name="ghe" id="ghe" value="<?= e($seatsPosted) ?>">
                             <p class="field-error" id="seatError" role="alert" hidden style="margin-top:12px;">
@@ -200,13 +204,17 @@ foreach ($routes as $r) {
                                         <label for="ten">
                                             <?= icon('user', 17) ?> Họ và tên hành khách <span class="required">*</span>
                                         </label>
-                                        <input type="text" id="ten" name="ten" placeholder="Ví dụ: Nguyễn Văn A" value="<?= old('ten', $taiKhoan['name'] ?? '') ?>" autocomplete="name" required>
+                                        <input type="text" id="ten" name="ten"
+                                            placeholder="Ví dụ: Nguyễn Văn A" value="<?= old('ten', $taiKhoan['name'] ?? '') ?>"
+                                            autocomplete="name" required>
                                     </div>
                                     <div class="field">
                                         <label for="sdt">
                                             <?= icon('phone', 17) ?> Số điện thoại nhận tin <span class="required">*</span>
                                         </label>
-                                        <input type="tel" id="sdt" name="sdt" placeholder="Ví dụ: 0912345678" value="<?= old('sdt', $taiKhoan['phone'] ?? '') ?>" autocomplete="tel" inputmode="tel" required>
+                                        <input type="tel" id="sdt" name="sdt"
+                                            placeholder="Ví dụ: 0912345678" value="<?= old('sdt', $taiKhoan['phone'] ?? '') ?>"
+                                            autocomplete="tel" inputmode="tel" required>
                                     </div>
                                 </div>
 
@@ -214,7 +222,21 @@ foreach ($routes as $r) {
                                     <label for="email">
                                         <?= icon('mail', 17) ?> Email (nhận mã vé điện tử & thông báo hành trình)
                                     </label>
-                                    <input type="email" id="email" name="email" placeholder="email@example.com" value="<?= old('email', $taiKhoan['email'] ?? '') ?>" autocomplete="email">
+                                    <input type="email" id="email" name="email"
+                                        placeholder="email@example.com" value="<?= old('email', $taiKhoan['email'] ?? '') ?>"
+                                        autocomplete="email">
+                                </div>
+
+                                <div class="field">
+                                    <label for="ghi_chu">
+                                        <?= icon('edit', 17) ?> Ghi chú
+                                    </label>
+                                    <textarea
+                                        id="ghi_chu"
+                                        name="ghi_chu"
+                                        rows="3"
+                                        placeholder="Yêu cầu khác dành cho nhà xe, ví dụ: cần hỗ trợ hành lý hoặc điểm đón cụ thể..."
+                                    ><?= old('ghi_chu') ?></textarea>
                                 </div>
 
                                 <fieldset class="field" style="border:0; padding:0; margin:8px 0 0;">
@@ -240,7 +262,7 @@ foreach ($routes as $r) {
                                     <label class="check">
                                         <input type="checkbox" id="trung_chuyen" name="trung_chuyen" value="1"<?= !empty($_POST['trung_chuyen']) ? ' checked' : '' ?>>
                                         <span style="font-weight:600; color:var(--color-text);">
-                                            <?= icon('car', 18) ?> Đăng ký xe trung chuyển đón tận nơi tại Bạc Liêu (Miễn phí)
+                                            <?= icon('car', 18) ?> Yêu cầu xe trung chuyển đón tại Bạc Liêu
                                         </span>
                                     </label>
                                     <div id="shuttleBox" class="<?= !empty($_POST['trung_chuyen']) ? '' : 'hidden' ?>" style="margin-top: 14px;">
@@ -298,7 +320,13 @@ foreach ($routes as $r) {
                 window.TN_ROUTES = <?= json_encode($jsRoutes, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
                 window.TN_INIT = {
                     seats: <?= json_encode($seatsPosted, JSON_UNESCAPED_UNICODE) ?>,
-                    want: <?= (int) $soLuongMuonDat ?>
+                    want: <?= (int) $soLuongMuonDat ?>,
+                    taken: <?= json_encode($gheDaDat ?? [], JSON_UNESCAPED_UNICODE) ?>,
+                    capacity: <?= (int)$thongTinChoNgoi['suc_chua'] ?>,
+                    booked: <?= (int)$thongTinChoNgoi['so_ghe_da_dat'] ?>,
+                    available: <?= (int)$thongTinChoNgoi['so_ghe_con_trong'] ?>,
+                    status: <?= json_encode($thongTinChoNgoi['trang_thai']) ?>,
+                    availabilityUrl: 'SeatAvailability.php'
                 };
             </script>
         <?php endif; ?>

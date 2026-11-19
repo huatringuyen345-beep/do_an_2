@@ -1,7 +1,6 @@
 <?php
-require_once __DIR__ . '/../backend/includes/config.php';
-require_once __DIR__ . '/../backend/database/config.php';
-require_once __DIR__ . '/../backend/controllers/XuLyThanhToan.php';
+require_once __DIR__ . '/../backend/bootstrap.php';
+require_once __DIR__ . '/../backend/controllers/ThanhToanController.php';
 
 $pageTitle = 'Thanh toán đặt vé';
 $pageDesc = 'Thanh toán mô phỏng cho đơn đặt vé của khách hàng Tài Nguyên.';

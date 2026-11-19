@@ -4,7 +4,7 @@
  * chỉ nhận POST, kiểm tra CSRF, xóa phiên tài khoản và tạo lại session ID.
  */
 
-require_once __DIR__ . '/../backend/includes/config.php';
+require_once __DIR__ . '/../backend/bootstrap.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);

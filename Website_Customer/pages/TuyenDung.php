@@ -1,8 +1,7 @@
 <?php
-require_once __DIR__ . '/../backend/includes/config.php';
-customer_require_account('TuyenDung.php');
-require_once __DIR__ . '/../backend/includes/data.php';
-require_once __DIR__ . '/../backend/controllers/XuLyTuyenDung.php';
+require_once __DIR__ . '/../backend/bootstrap.php';
+require_once __DIR__ . '/../backend/data/loader.php';
+require_once __DIR__ . '/../backend/controllers/TuyenDungController.php';
 
 $pageTitle = 'Cơ hội nghề nghiệp & Tuyển dụng';
 $pageDesc  = 'Gia nhập đội ngũ nhà xe Tài Nguyên: Tuyển dụng tài xế dấu D, E, phụ xe và nhân viên phòng vé tại Bạc Liêu.';
@@ -78,6 +77,7 @@ include __DIR__ . '/../includes/header.php';
                 <?php endif; ?>
 
                 <form method="post" action="TuyenDung.php#ung-tuyen" novalidate>
+                    <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
                     <div class="form-grid">
                         <div class="field">
                             <label for="vi_tri">

@@ -2,10 +2,10 @@
 /*
  * Trang đăng nhập chung và đăng ký khách hàng.
  * Tham số area=staff giới hạn trang ở chế độ đăng nhập nhân viên, không đăng ký.
- * Logic xác thực được xử lý trong backend/controllers/DieuKhienTaiKhoan.php.
+ * Logic xác thực được xử lý trong backend/controllers/TaiKhoanController.php.
  */
 
-require_once __DIR__ . '/../backend/includes/config.php';
+require_once __DIR__ . '/../backend/bootstrap.php';
 
 $dangNhapNhanVien = (($_GET['area'] ?? $_POST['area'] ?? '') === 'staff');
 $duongDanSauDangNhap = customer_auth_next($_POST['next'] ?? $_GET['next'] ?? '');
@@ -23,7 +23,7 @@ if (!empty($_SESSION['account']['id']) && !$dangNhapNhanVien) {
     exit;
 }
 
-require_once __DIR__ . '/../backend/controllers/DieuKhienTaiKhoan.php';
+require_once __DIR__ . '/../backend/controllers/TaiKhoanController.php';
 
 $pageTitle = $dangNhapNhanVien ? 'Đăng nhập nhân viên' : ($formHienTai === 'register' ? 'Tạo tài khoản khách hàng' : 'Đăng nhập tài khoản');
 $pageDesc = $dangNhapNhanVien

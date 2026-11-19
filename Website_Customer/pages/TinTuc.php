@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__ . '/../backend/includes/config.php';
-require_once __DIR__ . '/../backend/includes/data.php';
+require_once __DIR__ . '/../backend/bootstrap.php';
+require_once __DIR__ . '/../backend/data/loader.php';
 
 $id    = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 $item  = $id ? find_news($id) : null;

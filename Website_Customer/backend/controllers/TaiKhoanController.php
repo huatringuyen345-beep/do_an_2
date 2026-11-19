@@ -5,9 +5,7 @@
  * Duoc nap tu pages/Login.php va pages/TaiKhoan.php.
  */
 
-if (session_status() !== PHP_SESSION_ACTIVE) {
-    session_start();
-}
+require_once __DIR__ . '/../bootstrap.php';
 
 $loi = [];
 $thongBaoThanhCong = '';
@@ -37,7 +35,7 @@ if (empty($_SESSION['csrf_token'])) {
 }
 
 // Nap cau hinh ket noi co so du lieu.
-require_once __DIR__ . '/../database/config.php';
+require_once __DIR__ . '/../bootstrap.php';
 require_once __DIR__ . '/../models/NguoiDungModel.php';
 $nguoiDungModel = isset($conn) && $conn instanceof mysqli
     ? new NguoiDungModel($conn)

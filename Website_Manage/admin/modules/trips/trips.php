@@ -129,11 +129,12 @@ $drivers = $conn->query(
      WHERE ma_vai_tro = 4 AND trang_thai = 'hoat_dong' ORDER BY ho_ten"
 )->fetch_all(MYSQLI_ASSOC);
 $trips = $conn->query(
-    "SELECT cx.*, td.ten_tuyen, x.bien_so, x.ten_xe, nd.ho_ten AS tai_xe,
+    "SELECT cx.*, td.ten_tuyen, x.bien_so, x.ten_xe, lx.so_ghe AS suc_chua, nd.ho_ten AS tai_xe,
         (SELECT COUNT(*) FROM chi_tiet_ve ct WHERE ct.ma_chuyen = cx.ma_chuyen AND ct.trang_thai <> 'da_huy') AS so_ve
      FROM chuyen_xe cx
      INNER JOIN tuyen_duong td ON td.ma_tuyen = cx.ma_tuyen
      INNER JOIN xe x ON x.ma_xe = cx.ma_xe
+     INNER JOIN loai_xe lx ON lx.ma_loai_xe = x.ma_loai_xe
      LEFT JOIN nguoi_dung nd ON nd.ma_nguoi_dung = cx.ma_tai_xe
      ORDER BY cx.gio_khoi_hanh DESC
      LIMIT 100"
@@ -208,7 +209,7 @@ require __DIR__ . '/../../../includes/header.php';
 <section class="card">
     <div class="card-head"><h2>Danh sách chuyến xe</h2><span class="muted small">Tối đa 100 chuyến mới nhất</span></div>
     <div class="table-wrap"><table>
-        <thead><tr><th>Thời gian</th><th>Tuyến</th><th>Xe / tài xế</th><th>Giá vé</th><th>Đã đặt</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
+        <thead><tr><th>Thời gian</th><th>Tuyến</th><th>Xe / tài xế</th><th>Giá vé</th><th>Ghế đã đặt / sức chứa</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
         <tbody>
         <?php if (!$trips): ?><tr><td colspan="7" class="empty-state">Chưa có chuyến xe.</td></tr><?php endif; ?>
         <?php foreach ($trips as $trip): ?>
@@ -217,7 +218,10 @@ require __DIR__ . '/../../../includes/header.php';
                 <td><?= admin_e($trip['ten_tuyen']) ?></td>
                 <td><strong><?= admin_e($trip['bien_so']) ?></strong><br><?= admin_e($trip['ten_xe'] ?: 'Chưa đặt tên') ?><br><span class="muted small">Tài xế: <?= admin_e($trip['tai_xe'] ?: 'Chưa phân công') ?></span></td>
                 <td><?= admin_e(admin_money($trip['gia_ve'])) ?></td>
-                <td><?= (int) $trip['so_ve'] ?></td>
+                <td>
+                    <?= (int) $trip['so_ve'] ?> / <?= (int) $trip['suc_chua'] ?>
+                    <br><span class="muted small">Còn <?= max(0, (int) $trip['suc_chua'] - (int) $trip['so_ve']) ?> chỗ</span>
+                </td>
                 <td><span class="<?= admin_e(admin_status_class($trip['trang_thai'])) ?>"><?= admin_e(admin_status_label($trip['trang_thai'])) ?></span></td>
                 <td>
                     <a class="button button-light button-small" href="trips.php?edit=<?= (int) $trip['ma_chuyen'] ?>">Sửa</a>

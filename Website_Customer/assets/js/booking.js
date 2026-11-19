@@ -15,6 +15,7 @@
         ghe: document.getElementById('ghe'),
         map: document.getElementById('seatmap'),
         hint: document.getElementById('loaiHint'),
+        availability: document.getElementById('seatAvailability'),
         err: document.getElementById('seatError'),
         sRoute: document.getElementById('sumRoute'),
         sDate: document.getElementById('sumDate'),
@@ -26,7 +27,14 @@
     };
 
     var selected = new Set(INIT.seats ? INIT.seats.split(',').filter(Boolean) : []);
+    var taken = Array.isArray(INIT.taken) ? INIT.taken : [];
+    var capacity = Number(INIT.capacity || 0);
+    var booked = Number(INIT.booked || 0);
+    var available = Number(INIT.available || 0);
+    var tripStatus = INIT.status || '';
     var lastContext = '';
+    var availabilityRequest = 0;
+    var availabilityReady = capacity > 0 && ['mo_ban', 'het_cho'].indexOf(tripStatus) !== -1;
 
     function money(n) { return Number(n).toLocaleString('vi-VN') + 'đ'; }
     function chieu() {
@@ -36,6 +44,72 @@
     function route() { return ROUTES[el.tuyen.value]; }
 
     function pad(n) { return (n < 10 ? '0' : '') + n; }
+    function updateAvailabilityLabel() {
+        if (capacity < 1) {
+            el.availability.textContent = 'Chưa xác định được sức chứa xe.';
+            return;
+        }
+        if (tripStatus !== 'mo_ban' && tripStatus !== 'het_cho') {
+            el.availability.textContent = 'Chuyến xe không còn mở bán.';
+            return;
+        }
+        el.availability.textContent = 'Đã đặt ' + booked + ' / ' + capacity + ' chỗ · Còn trống ' + available + ' chỗ.';
+    }
+
+    function setSubmitEnabled(enabled) {
+        form.querySelectorAll('button[type="submit"]').forEach(function (button) {
+            button.disabled = !enabled;
+        });
+    }
+
+    function loadAvailability() {
+        var requestId = ++availabilityRequest;
+        var params = new URLSearchParams({
+            route: el.tuyen.value,
+            date: el.ngay.value,
+            time: el.gio.value,
+            type: el.loai.value
+        });
+
+        selected.clear();
+        availabilityReady = false;
+        setSubmitEnabled(false);
+        el.ghe.value = '';
+        el.availability.textContent = 'Đang cập nhật tình trạng ghế...';
+        el.map.textContent = 'Đang tải sơ đồ chỗ ngồi...';
+
+        fetch(INIT.availabilityUrl + '?' + params.toString(), {
+            credentials: 'same-origin',
+            headers: { 'Accept': 'application/json' }
+        }).then(function (response) {
+            return response.json().then(function (data) {
+                if (!response.ok) throw new Error(data.error || 'Không thể tải tình trạng ghế.');
+                return data;
+            });
+        }).then(function (data) {
+            if (requestId !== availabilityRequest) return;
+            taken = Array.isArray(data.ghe_da_dat) ? data.ghe_da_dat : [];
+            capacity = Number(data.suc_chua || 0);
+            booked = Number(data.so_ghe_da_dat || 0);
+            available = Number(data.so_ghe_con_trong || 0);
+            tripStatus = data.trang_thai || '';
+            availabilityReady = capacity > 0 && ['mo_ban', 'het_cho'].indexOf(tripStatus) !== -1;
+            updateAvailabilityLabel();
+            renderSeats();
+            setSubmitEnabled(availabilityReady && available > 0);
+        }).catch(function (error) {
+            if (requestId !== availabilityRequest) return;
+            capacity = 0;
+            booked = 0;
+            available = 0;
+            tripStatus = '';
+            taken = [];
+            availabilityReady = false;
+            updateAvailabilityLabel();
+            el.map.textContent = error.message;
+            setSubmitEnabled(false);
+        });
+    }
 
     /* Cập nhật danh sách giờ + loại xe khi đổi tuyến */
     function refreshRoute() {
@@ -66,6 +140,14 @@
         b.textContent = id.replace(/^[A-Z]/, '');
         b.setAttribute('aria-label', 'Chỗ ' + id);
         b.setAttribute('aria-pressed', selected.has(id) ? 'true' : 'false');
+        if (!availabilityReady || available < 1 || taken.indexOf(id) !== -1) {
+            b.disabled = true;
+            if (taken.indexOf(id) !== -1) {
+                b.className += ' is-taken';
+                b.setAttribute('aria-label', 'Chỗ ' + id + ' đã có người đặt');
+            }
+            b.setAttribute('aria-pressed', 'false');
+        }
         return b;
     }
     function gap() { var s = document.createElement('span'); s.className = 'gap'; s.setAttribute('aria-hidden', 'true'); return s; }
@@ -76,37 +158,31 @@
         var context = [el.tuyen.value, el.ngay.value, el.gio.value, type, chieu()].join('|');
         if (context !== lastContext && lastContext !== '') selected.clear();
         lastContext = context;
+        taken.forEach(function (id) { selected.delete(id); });
 
         el.map.innerHTML = '';
 
         if (type === 'ghe') {
-            // 8 hàng x 4 chỗ (2 - lối đi - 2) = 32 chỗ
             var deck = document.createElement('div'); deck.className = 'deck';
-            deck.innerHTML = '<h3>Xe ghế ngồi (32 chỗ)</h3>';
+            deck.innerHTML = '<h3>Xe ghế ngồi (' + capacity + ' chỗ)</h3>';
             var grid = document.createElement('div'); grid.className = 'deck-grid sit';
-            var n = 1;
-            for (var row = 0; row < 8; row++) {
-                for (var col = 0; col < 4; col++) {
-                    if (col === 2) grid.appendChild(gap());
-                    grid.appendChild(buildSeat('G' + pad(n)));
-                    n++;
-                }
+            for (var n = 1; n <= capacity; n++) {
+                var col = (n - 1) % 4;
+                if (col === 2) grid.appendChild(gap());
+                grid.appendChild(buildSeat('G' + pad(n)));
             }
             deck.appendChild(grid);
             el.map.appendChild(deck);
         } else {
-            // 2 tầng, mỗi tầng 6 hàng x 3 giường (1 - lối đi - 2) = 36 giường
-            [['D', 'Tầng dưới'], ['T', 'Tầng trên']].forEach(function (f) {
+            var lowerCapacity = Math.ceil(capacity / 2);
+            var upperCapacity = Math.floor(capacity / 2);
+            [['D', 'Tầng dưới', lowerCapacity], ['T', 'Tầng trên', upperCapacity]].forEach(function (f) {
                 var deck = document.createElement('div'); deck.className = 'deck';
-                deck.innerHTML = '<h3>' + f[1] + '</h3>';
+                deck.innerHTML = '<h3>' + f[1] + ' (' + f[2] + ' chỗ)</h3>';
                 var grid = document.createElement('div'); grid.className = 'deck-grid bed';
-                var n = 1;
-                for (var row = 0; row < 6; row++) {
-                    for (var col = 0; col < 3; col++) {
-                        if (col === 1) grid.appendChild(gap());
-                        grid.appendChild(buildSeat(f[0] + pad(n)));
-                        n++;
-                    }
+                for (var n = 1; n <= f[2]; n++) {
+                    if ((n - 1) % 3 === 1) grid.appendChild(gap());
+                    grid.appendChild(buildSeat(f[0] + pad(n)));
                 }
                 deck.appendChild(grid);
                 el.map.appendChild(deck);
@@ -142,6 +218,11 @@
             selected.delete(id);
             b.setAttribute('aria-pressed', 'false');
         } else {
+            if (selected.size >= available) {
+                el.err.textContent = 'Chỉ còn ' + available + ' chỗ trống trên chuyến này.';
+                el.err.hidden = false;
+                return;
+            }
             if (selected.size >= 10) {
                 el.err.textContent = 'Mỗi lần đặt tối đa 10 chỗ.';
                 el.err.hidden = false;
@@ -153,12 +234,18 @@
         update();
     });
 
-    el.tuyen.addEventListener('change', function () { refreshRoute(); renderSeats(); });
-    [el.ngay, el.gio, el.loai].forEach(function (x) { x.addEventListener('change', renderSeats); });
+    el.tuyen.addEventListener('change', function () { refreshRoute(); loadAvailability(); });
+    [el.ngay, el.gio, el.loai].forEach(function (x) { x.addEventListener('change', loadAvailability); });
     form.querySelectorAll('input[name="chieu"]').forEach(function (x) { x.addEventListener('change', renderSeats); });
 
     /* Chặn gửi form khi chưa chọn chỗ */
     form.addEventListener('submit', function (e) {
+        if (!availabilityReady || available < selected.size) {
+            e.preventDefault();
+            el.err.textContent = 'Không thể xác nhận vì tình trạng ghế chưa sẵn sàng hoặc không còn đủ chỗ.';
+            el.err.hidden = false;
+            return;
+        }
         if (selected.size !== INIT.want) {
             e.preventDefault();
             el.err.textContent = selected.size < INIT.want
@@ -170,7 +257,9 @@
     });
 
     refreshRoute();
+    updateAvailabilityLabel();
     renderSeats();
+    setSubmitEnabled(availabilityReady && available > 0);
 
     /* Nếu đến từ trang chủ với số khách > 1, nhắc người dùng chọn đủ số chỗ */
     if (INIT.want > 1 && selected.size === 0) {

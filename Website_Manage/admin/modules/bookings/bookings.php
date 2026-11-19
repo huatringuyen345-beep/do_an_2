@@ -53,6 +53,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute();
         $stmt->close();
 
+        $tripStmt = $conn->prepare('SELECT DISTINCT ma_chuyen FROM chi_tiet_ve WHERE ma_dat_ve_id = ?');
+        $tripStmt->bind_param('i', $bookingId);
+        $tripStmt->execute();
+        $bookingTrips = $tripStmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $tripStmt->close();
+
+        foreach ($bookingTrips as $bookingTrip) {
+            $tripId = (int)$bookingTrip['ma_chuyen'];
+            $availabilityStmt = $conn->prepare(
+                "SELECT cx.trang_thai, lx.so_ghe AS suc_chua,
+                        (SELECT COUNT(DISTINCT ct.ma_ghe)
+                         FROM chi_tiet_ve ct
+                         WHERE ct.ma_chuyen = cx.ma_chuyen
+                           AND ct.trang_thai IN ('giu_cho', 'da_xac_nhan')) AS so_ghe_da_dat
+                 FROM chuyen_xe cx
+                 INNER JOIN xe x ON x.ma_xe = cx.ma_xe
+                 INNER JOIN loai_xe lx ON lx.ma_loai_xe = x.ma_loai_xe
+                 WHERE cx.ma_chuyen = ?"
+            );
+            $availabilityStmt->bind_param('i', $tripId);
+            $availabilityStmt->execute();
+            $tripAvailability = $availabilityStmt->get_result()->fetch_assoc();
+            $availabilityStmt->close();
+
+            if ($tripAvailability && in_array($tripAvailability['trang_thai'], ['mo_ban', 'het_cho'], true)) {
+                $tripStatus = (int)$tripAvailability['so_ghe_da_dat'] >= (int)$tripAvailability['suc_chua']
+                    ? 'het_cho'
+                    : 'mo_ban';
+                $statusStmt = $conn->prepare('UPDATE chuyen_xe SET trang_thai = ? WHERE ma_chuyen = ?');
+                $statusStmt->bind_param('si', $tripStatus, $tripId);
+                $statusStmt->execute();
+                $statusStmt->close();
+            }
+        }
+
         if (isset($paymentStatusMap[$status])) {
             $paymentStatus = $paymentStatusMap[$status];
             $paymentStmt = $conn->prepare(

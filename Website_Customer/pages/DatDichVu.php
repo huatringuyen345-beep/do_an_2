@@ -1,41 +1,39 @@
 <?php
-require_once __DIR__ . '/../backend/includes/config.php';
+require_once __DIR__ . '/../backend/bootstrap.php';
 customer_require_account('DatDichVu.php');
-require_once __DIR__ . '/../backend/includes/data.php';
-require_once __DIR__ . '/../backend/controllers/XuLyDichVu.php';
+require_once __DIR__ . '/../backend/data/loader.php';
+require_once __DIR__ . '/../backend/controllers/DichVuController.php';
 
 $pageTitle = 'Đặt dịch vụ vận chuyển & trung chuyển';
 $pageDesc  = 'Đặt dịch vụ vận chuyển hàng hóa, trung chuyển tận nơi và các dịch vụ hỗ trợ của Tài Nguyên.';
 include __DIR__ . '/../includes/header.php';
 
-$serviceCatalog = [
-    'van_chuyen_hang' => ['id' => 1, 'ten' => 'Vận chuyển hàng hóa', 'gia' => 50000, 'mota' => 'Gửi hàng theo tuyến xe khách, nhận hàng tại văn phòng hoặc giao nhận tận nơi.'],
-    'trung_chuyen' => ['id' => 2, 'ten' => 'Xe trung chuyển tận nơi', 'gia' => 30000, 'mota' => 'Xe trung chuyển đón và trả khách tại nhà trước giờ khởi hành trong khu vực Bạc Liêu.'],
-];
+$serviceCatalog = [];
+$stmt = $conn->prepare('SELECT ma_dich_vu, ten_dich_vu, loai_dich_vu, gia_tham_khao, mo_ta FROM dich_vu WHERE trang_thai = "hoat_dong" AND loai_dich_vu IN ("van_chuyen_hang", "trung_chuyen") ORDER BY ma_dich_vu');
+$stmt->execute();
+$ketQua = $stmt->get_result();
+while ($dong = $ketQua->fetch_assoc()) {
+    $serviceCatalog[(int)$dong['ma_dich_vu']] = [
+        'slug' => $dong['loai_dich_vu'],
+        'ten' => $dong['ten_dich_vu'],
+        'gia' => (float)($dong['gia_tham_khao'] ?? 0),
+        'mota' => $dong['mo_ta'] ?? '',
+    ];
+}
+$stmt->close();
 
-if (isset($conn) && $conn instanceof mysqli) {
-    try {
-        $stmt = $conn->prepare('SELECT ma_dich_vu, ten_dich_vu, loai_dich_vu, gia_tham_khao, mo_ta FROM dich_vu WHERE trang_thai = "hoat_dong" ORDER BY ma_dich_vu');
-        $stmt->execute();
-        $ketQua = $stmt->get_result();
-        while ($dong = $ketQua->fetch_assoc()) {
-            $slug = $dong['loai_dich_vu'] === 'trung_chuyen' ? 'trung_chuyen' : 'van_chuyen_hang';
-            $serviceCatalog[$slug] = [
-                'id' => (int) $dong['ma_dich_vu'],
-                'ten' => $dong['ten_dich_vu'],
-                'gia' => (float) ($dong['gia_tham_khao'] ?? 0),
-                'mota' => $dong['mo_ta'] ?? '',
-            ];
+$selectedServiceId = filter_var($_POST['service_id'] ?? null, FILTER_VALIDATE_INT);
+if (!$selectedServiceId) {
+    $selectedSlug = $_GET['service'] ?? '';
+    foreach ($serviceCatalog as $serviceId => $service) {
+        if ($service['slug'] === $selectedSlug) {
+            $selectedServiceId = $serviceId;
+            break;
         }
-        $stmt->close();
-    } catch (Throwable $loi) {
-        error_log('Loi tai danh sach dich vu: ' . $loi->getMessage());
     }
 }
-
-$selectedService = $_POST['loai_dich_vu'] ?? ($_GET['service'] ?? 'van_chuyen_hang');
-$selectedService = array_key_exists($selectedService, $serviceCatalog) ? $selectedService : 'van_chuyen_hang';
-$selectedServiceInfo = $serviceCatalog[$selectedService];
+$selectedServiceId = isset($serviceCatalog[$selectedServiceId]) ? $selectedServiceId : (array_key_first($serviceCatalog) ?: null);
+$selectedServiceInfo = $selectedServiceId === null ? null : $serviceCatalog[$selectedServiceId];
 ?>
 
 <section class="page-head">
@@ -76,19 +74,22 @@ $selectedServiceInfo = $serviceCatalog[$selectedService];
                     <div class="book-sec">
                         <h2><span class="n">1</span> Chọn loại dịch vụ cần sử dụng</h2>
                         <div class="service-choice-list">
-                            <?php foreach ($serviceCatalog as $slug => $service): ?>
-                                <label class="service-choice <?= $slug === $selectedService ? 'is-selected' : '' ?>">
-                                    <input type="radio" name="loai_dich_vu" value="<?= e($slug) ?>" <?= $slug === $selectedService ? 'checked' : '' ?>>
+                            <?php foreach ($serviceCatalog as $serviceId => $service): ?>
+                                <label class="service-choice <?= $serviceId === $selectedServiceId ? 'is-selected' : '' ?>">
+                                    <input type="radio" name="service_id" value="<?= (int)$serviceId ?>" <?= $serviceId === $selectedServiceId ? 'checked' : '' ?>>
                                     <span>
                                         <strong>
-                                            <?= $slug === 'van_chuyen_hang' ? icon('box', 20) : icon('car', 20) ?>
+                                            <?= $service['slug'] === 'van_chuyen_hang' ? icon('box', 20) : icon('car', 20) ?>
                                             <?= e($service['ten']) ?>
                                         </strong>
-                                        <small><?= e($service['mota']) ?: 'Phù hợp cho nhu cầu vận chuyển của quý khách.' ?></small>
+                                        <small><?= e($service['mota']) ?></small>
                                     </span>
-                                    <em><?= e(money((int) $service['gia'])) ?></em>
+                                    <em><?= e(money($service['gia'])) ?></em>
                                 </label>
                             <?php endforeach; ?>
+                            <?php if (!$serviceCatalog): ?>
+                                <p class="empty">Hiện chưa có dịch vụ nào được mở để đặt.</p>
+                            <?php endif; ?>
                         </div>
                     </div>
 
@@ -199,17 +200,19 @@ $selectedServiceInfo = $serviceCatalog[$selectedService];
                         <span class="user-role-badge badge-nhan_vien" style="font-size:0.75rem;">Yêu cầu</span>
                     </h2>
                     <dl>
+                        <?php if ($selectedServiceInfo): ?>
                         <div><dt>Dịch vụ</dt><dd><?= e($selectedServiceInfo['ten']) ?></dd></div>
-                        <div><dt>Đơn giá</dt><dd><?= e(money((int) $selectedServiceInfo['gia'])) ?></dd></div>
+                        <div><dt>Đơn giá</dt><dd><?= e(money($selectedServiceInfo['gia'])) ?></dd></div>
+                        <?php endif; ?>
                         <div><dt>Thời gian</dt><dd><?= e(date('d/m/Y', strtotime($_POST['ngay_su_dung'] ?? 'now')) ?: 'Hôm nay') ?></dd></div>
                         <div><dt>Khối lượng</dt><dd><?= e($_POST['khoi_luong_kg'] ?? '1') ?> kg</dd></div>
                     </dl>
                     <div class="total">
                         <span>Chi phí ước tính:</span>
-                        <strong><?= e(money((int) ($selectedServiceInfo['gia'] * max(1, (int)($_POST['so_luong'] ?? 1))))) ?></strong>
+                        <strong><?= $selectedServiceInfo ? e(money($selectedServiceInfo['gia'] * max(1, (int)($_POST['so_luong'] ?? 1)))) : '—' ?></strong>
                     </div>
 
-                    <button class="btn btn-y btn-block" type="submit" style="margin-bottom:12px;">
+                    <button class="btn btn-y btn-block" type="submit" style="margin-bottom:12px;"<?= $selectedServiceInfo ? '' : ' disabled' ?>>
                         <?= icon('check', 18) ?> <span>Gửi yêu cầu dịch vụ</span>
                     </button>
 

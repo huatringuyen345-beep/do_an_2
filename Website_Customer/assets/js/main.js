@@ -92,22 +92,6 @@
         if (search) search.addEventListener('input', apply);
     }
 
-    /* ----- Ước tính cước gửi hàng (công thức mẫu, sửa theo bảng giá thật) ----- */
-    var est = document.getElementById('estimateForm');
-    if (est) {
-        var out = document.getElementById('estimateOut');
-        var calc = function () {
-            var km = parseInt(est.elements['tuyen'].selectedOptions[0].dataset.km, 10) || 0;
-            var kg = parseFloat(est.elements['kg'].value) || 0;
-            if (kg <= 0) { out.textContent = '0đ'; return; }
-            var cost = Math.max(30000, Math.round(km * 20 * kg / 1000) * 1000);
-            out.textContent = cost.toLocaleString('vi-VN') + 'đ';
-        };
-        est.addEventListener('input', calc);
-        est.addEventListener('submit', function (e) { e.preventDefault(); calc(); });
-        calc();
-    }
-
     /* ----- Hiện ô địa chỉ khi chọn trung chuyển (trang đặt vé) ----- */
     var shuttle = document.getElementById('trung_chuyen');
     var shuttleBox = document.getElementById('shuttleBox');

@@ -1,285 +1,443 @@
 <?php
-require_once __DIR__ . '/../backend/includes/config.php';
-require_once __DIR__ . '/../backend/includes/data.php';
+require_once __DIR__ . '/../backend/bootstrap.php';
+require_once __DIR__ . '/../backend/data/loader.php';
+$defaultRoute = $tuyenDuongModel->findRoute('tp-hcm', $routes) ?? ($routes[0] ?? null);
+$routeForResults = $defaultRoute ? $defaultRoute : null;
+$promotions = array_slice(array_values(array_filter($news, function ($item) {
+    return $item['loai'] === 'khuyen-mai';
+})), 0, 3);
+$routeDestinations = implode(', ', array_column($routes, 'ten'));
+$pageTitle = 'Trang chủ | Đặt vé xe khách trực tuyến Bạc Liêu';
+$pageDesc = 'Đặt vé xe khách từ Bạc Liêu đi ' . $routeDestinations . ' trực tuyến. Xem lịch trình và giá vé được cập nhật từ hệ thống.';
+$homeRoutesJson = json_encode(array_map(function ($route) {
+    return [
+        'slug' => $route['slug'],
+        'name' => $route['ten'],
+        'km' => (float)$route['km'],
+        'duration' => duration($route['gio']),
+        'seatPrice' => (float)$route['ghe'],
+        'bedPrice' => $route['giuong'] === null ? null : (float)$route['giuong'],
+        'departures' => $route['khoi_hanh'],
+    ];
+}, $routes), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+
+$extraScripts = ['../assets/js/home.js'];
 include __DIR__ . '/../includes/header.php';
-
-// Sắp xếp tuyến theo khoảng cách để vẽ sơ đồ
-$sorted = $routes;
-usort($sorted, function ($a, $b) { return $a['km'] <=> $b['km']; });
-$maxKm = max(array_column($routes, 'km'));
-
-// Chỉ hiển thị các chương trình còn hạn.
-$latest = array_slice($news, 0, 4);
-$promo = null;
-foreach ($news as $n) {
-    if ($n['loai'] === 'khuyen-mai' && (!isset($n['ket_thuc']) || $n['ket_thuc'] >= date('Y-m-d'))) {
-        $promo = $n;
-        break;
-    }
-}
 ?>
 
-<?php if ($promo): ?>
-<div class="promo">
-    <div class="wrap">
-        <p><?= icon('sparkles', 18) ?> <strong>Khuyến mãi:</strong> <?= e($promo['tieu_de']) ?></p>
-        <a href="TinTuc.php?id=<?= (int)$promo['id'] ?>">Xem điều kiện áp dụng <?= icon('arrow-right', 14) ?></a>
-    </div>
-</div>
-<?php endif; ?>
-
-<!-- ============ HERO + FORM TÌM CHUYẾN XE ============ -->
-<section class="hero">
-    <div class="wrap hero-grid">
-        <div>
-            <span class="user-role-badge badge-nhan_vien" style="margin-bottom:14px; font-size:0.85rem; padding:4px 14px;">
-                <?= icon('shield-check', 16) ?> Nhà xe chất lượng cao Bạc Liêu
-            </span>
-            <h1>Mỗi ngày, xe Tài Nguyên rời Bạc Liêu đi khắp miền Nam</h1>
-            <p class="lead">Đặt vé trực tuyến nhanh chóng đi TP. Hồ Chí Minh, Bình Dương, Vũng Tàu, Đà Lạt, Nha Trang và các tỉnh miền Tây. Đội xe đời mới với ghế ngồi và giường nằm tiện nghi.</p>
-            
-            <div class="hero-actions">
-                <a class="btn btn-y" href="DatVe.php">
-                    <?= icon('ticket', 18) ?> <span>Đặt vé ngay</span>
-                </a>
-                <a class="btn btn-ghost" href="tel:<?= preg_replace('/\D/', '', $company['hotline']) ?>">
-                    <?= icon('phone', 18) ?> <span>Hotline: <?= e($company['hotline']) ?></span>
-                </a>
+    <!-- ================= HERO & BOOKING SEARCH BOX ================= -->
+    <section class="hero-section">
+        <div class="hero-bg-shapes"></div>
+        <div class="container">
+            <div class="hero-banner-content">
+                <div class="hero-badge-futa">
+                    <span class="dot"></span>
+                    <span>Tài Nguyên Bus Lines — Chất Lượng Là Danh Dự</span>
+                </div>
+                <h1 class="hero-title">Đồng Hành An Toàn Trên Mọi Chặng Đường</h1>
+                <p class="hero-subtitle">Đặt vé trực tuyến tiện lợi như Vexere, dịch vụ chu đáo chuẩn Futa Phương Trang. Đội xe Limousine đời mới đón trả tận nhà miễn phí tại Bạc Liêu.</p>
             </div>
 
-            <div class="hero-badges">
-                <div class="hero-badge-item">
-                    <?= icon('shield-check', 18) ?>
-                    <span>100% Giữ đúng chỗ</span>
-                </div>
-                <div class="hero-badge-item">
-                    <?= icon('car', 18) ?>
-                    <span>Đón tận nhà miễn phí</span>
-                </div>
-                <div class="hero-badge-item">
-                    <?= icon('clock', 18) ?>
-                    <span>Xuất bến đúng giờ</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- FORM TÌM CHUYẾN XE (GET TO DatVe.php) -->
-        <form class="ticket" action="DatVe.php" method="get">
-            <div class="ticket-head">
-                <h2>
-                    <?= icon('search', 22) ?>
-                    <span>Tìm chuyến xe online</span>
-                </h2>
-                <p>Tra cứu nhanh giờ chạy, loại xe và chỗ ngồi</p>
-            </div>
-            <div class="ticket-body">
-                <div class="field">
-                    <span class="label" id="lbl-chieu">
-                        <?= icon('arrow-left-right', 16) ?> Chiều di chuyển
-                    </span>
-                    <div class="seg" role="radiogroup" aria-labelledby="lbl-chieu">
-                        <label>
-                            <input type="radio" name="chieu" value="di" checked>
-                            <span>Đi từ Bạc Liêu</span>
-                        </label>
-                        <label>
-                            <input type="radio" name="chieu" value="ve">
-                            <span>Về Bạc Liêu</span>
-                        </label>
-                    </div>
+            <!-- ================= THE HYBRID BOOKING SEARCH CARD ================= -->
+            <div class="booking-search-card">
+                <!-- 1. Tabs chọn loại hình dịch vụ -->
+                <div class="search-tabs">
+                    <button class="search-tab-btn active" data-tab="bus">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6v6M15 6v6M2 12h19.6M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3M9 18h5"/><circle cx="7" cy="18" r="2"/><circle cx="16" cy="18" r="2"/></svg>
+                        <span>Xe khách tuyến cố định</span>
+                    </button>
+                    <button class="search-tab-btn" data-tab="parcel">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16.5 9.4 7.5 4.21M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16zM3.27 6.96 12 12.01l8.73-5.05M12 22.08V12"/></svg>
+                        <span>Tài Nguyên Express (Gửi hàng)</span>
+                    </button>
+                    <button class="search-tab-btn" data-tab="rent">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2M7 17h10"/>
+                            <circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>
+                        <span>Thuê xe hợp đồng du lịch</span>
+                    </button>
                 </div>
 
-                <div class="field">
-                    <label for="h-tuyen">
-                        <?= icon('pin', 16) ?> Tuyến đường / Điểm đến
+                <!-- 2. Chọn Một chiều / Khứ hồi -->
+                <div class="trip-mode-radios">
+                    <label class="trip-radio-item">
+                        <input type="radio" name="tripMode" value="oneway" checked>
+                        <span>Một chiều</span>
                     </label>
-                    <select id="h-tuyen" name="tuyen">
-                        <?php foreach ($routes as $r): ?>
-                            <option value="<?= e($r['slug']) ?>"<?= $r['slug'] === 'tp-hcm' ? ' selected' : '' ?>>
-                                <?= e($r['ten']) ?> (<?= (int)$r['km'] ?> km)
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
+                    <label class="trip-radio-item">
+                        <input type="radio" name="tripMode" value="roundtrip">
+                        <span>Khứ hồi</span>
+                    </label>
                 </div>
 
-                <div class="row2">
-                    <div class="field">
-                        <label for="h-ngay">
-                            <?= icon('calendar', 16) ?> Ngày đi
+                <!-- 3. Thanh tìm kiếm 4 khối kiểu Vexere -->
+                <div class="search-inputs-grid">
+                    <!-- Điểm đi -->
+                    <div class="search-field-box" id="fieldBoxFrom" title="Bấm để chọn điểm đi">
+                        <label>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f26522" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+                            <span>Điểm xuất phát</span>
                         </label>
-                        <input type="date" id="h-ngay" name="ngay" value="<?= date('Y-m-d') ?>" min="<?= date('Y-m-d') ?>">
+                        <div class="field-val" id="fromCityVal">Bạc Liêu</div>
+                        <div class="field-sub">Bến xe Bạc Liêu / Đón tận nhà</div>
                     </div>
-                    <div class="field">
-                        <label for="h-sl">
-                            <?= icon('users', 16) ?> Số khách
+
+                    <!-- Nút đảo chiều ⇄ -->
+                    <button class="btn-swap-locations" id="btnSwapLocations" type="button" title="Đổi chiều điểm đi / điểm đến">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M8 3 4 7l4 4M4 7h16M16 21l4-4-4-4M20 17H4"/>
+                        </svg>
+                    </button>
+
+                    <!-- Điểm đến -->
+                    <div class="search-field-box" id="fieldBoxTo" title="Bấm để chọn điểm đến">
+                        <label>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0d5cb6" stroke-width="2.5"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                            <span>Điểm đến</span>
                         </label>
-                        <input type="number" id="h-sl" name="sl" value="1" min="1" max="10">
+                        <div class="field-val" id="toCityVal"><?= e($defaultRoute['ten'] ?? 'Chưa có tuyến') ?></div>
+                        <div class="field-sub">BX Miền Tây / VP Quận 5</div>
                     </div>
+
+                    <div class="search-divider"></div>
+
+                    <!-- Ngày đi -->
+                    <div class="search-field-box" id="fieldBoxDepart" role="button" tabindex="0">
+                        <label>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+                            <span>Ngày đi</span>
+                        </label>
+                        <div class="field-val" id="departDateVal">Hôm nay</div>
+                        <div class="field-sub">Thứ 3, 17/11/2026</div>
+                        <input type="date" id="departDateInput" style="position:absolute; opacity:0; pointer-events:none; width:0; height:0;">
+                    </div>
+
+                    <!-- Ngày về (Khứ hồi) -->
+                    <div class="search-field-box" id="returnDateBox" style="opacity:0.5;">
+                        <label>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+                            <span>Ngày về</span>
+                        </label>
+                        <div class="field-val" id="returnDateVal">+ Thêm ngày về</div>
+                        <div class="field-sub">Chọn ngày khứ hồi</div>
+                    </div>
+
+                    <div class="search-divider"></div>
+
+                    <!-- Số lượng vé -->
+                    <div class="search-field-box">
+                        <label>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                            <span>Số khách</span>
+                        </label>
+                        <div class="field-val" id="passengersVal">1 khách</div>
+                        <div class="field-sub">Người lớn</div>
+                    </div>
+
+                    <!-- Nút TÌM CHUYẾN XE (Màu cam FUTA bắt mắt) -->
+                    <button class="btn-search-action" id="btnMainSearch" type="button">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                        <span>TÌM CHUYẾN</span>
+                    </button>
                 </div>
 
-                <button class="btn btn-y btn-lg btn-block" type="submit">
-                    <?= icon('search', 18) ?> <span>Tìm chuyến & Chọn chỗ</span>
-                </button>
-                <p class="hint" style="margin:0; text-align:center; font-size:0.82rem;">
-                    * Giá vé và tình trạng chỗ sẽ được nhân viên nhà xe kiểm tra & xác nhận.
-                </p>
+                <!-- 4. Gợi ý tuyến hot nhanh -->
+                <div class="quick-tags-row">
+                    <span class="quick-tags-label">Gợi ý tuyến hot:</span>
+                    <?php foreach (array_slice($routes, 0, 5) as $route): ?>
+                        <button type="button" class="quick-tag-pill" data-route-slug="<?= e($route['slug']) ?>">Bạc Liêu ➔ <?= e($route['ten']) ?></button>
+                    <?php endforeach; ?>
+                </div>
             </div>
-        </form>
-    </div>
-</section>
-
-<!-- ============ CÁC TUYẾN ============ -->
-<section class="section">
-    <div class="wrap">
-        <div class="sec-head">
-            <h2><?= count($routes) ?> tuyến xe xuất phát từ Bạc Liêu</h2>
-            <p>Chọn điểm đến của bạn để tham khảo khoảng cách, thời gian di chuyển và đặt vé trực tiếp.</p>
         </div>
+    </section>
 
-        <div class="fan" id="fan">
-            <?php foreach ($sorted as $r): ?>
-                <a class="fan-row" href="DatVe.php?tuyen=<?= e($r['slug']) ?>" title="Đặt vé đi <?= e($r['ten']) ?>">
-                    <span class="fan-city"><?= e($r['ten']) ?></span>
-                    <span class="fan-track"><i style="--w: calc(<?= round($r['km'] / $maxKm * 100) ?>% - 12px)"></i></span>
-                    <span class="fan-meta">
-                        <span><?= (int)$r['km'] ?> km · <?= e(duration($r['gio'])) ?></span>
-                        <span class="btn btn-sm btn-line" style="padding:4px 10px; font-size:0.84rem;">Chọn vé</span>
-                    </span>
-                </a>
-            <?php endforeach; ?>
-        </div>
-        <p style="margin-top:24px; text-align:center;">
-            <a class="btn btn-line" href="LichTrinh.php">
-                <?= icon('clock', 18) ?> <span>Xem toàn bộ lịch trình và bảng giá vé chi tiết</span>
-            </a>
-        </p>
-    </div>
-</section>
+    <!-- ================= FEATURES STRIP (CAM KẾT UY TÍN KIỂU FUTA) ================= -->
+    <section class="features-strip">
+        <div class="container">
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon-wrapper">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                    </div>
+                    <div class="feature-info">
+                        <h3>100% Giữ Đúng Chỗ</h3>
+                        <p>Chọn chính xác vị trí ghế/giường mong muốn trực tuyến, cam kết không nhồi nhét, không bắt khách dọc đường.</p>
+                    </div>
+                </div>
 
-<!-- ============ LOẠI PHƯƠNG TIỆN ============ -->
-<section class="section section-mist">
-    <div class="wrap">
-        <div class="sec-head">
-            <h2>Hai dòng xe phục vụ mọi nhu cầu di chuyển</h2>
-            <p>Trang bị điều hòa, rèm che, cổng sạc điện thoại và bảo dưỡng định kỳ nghiêm ngặt.</p>
-        </div>
+                <div class="feature-card">
+                    <div class="feature-icon-wrapper">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2M7 17h10"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>
+                    </div>
+                    <div class="feature-info">
+                        <h3>Đón Tận Nhà Miễn Phí</h3>
+                        <p>Xe trung chuyển đón trả tận cửa trong nội ô TP. Bạc Liêu và các trạm liên kết hoàn toàn miễn phí.</p>
+                    </div>
+                </div>
 
-        <div class="types">
-            <article class="type type-seat">
-                <span class="tag tag-ghe" style="align-self:flex-start; margin-bottom:12px;">Nội vùng & Miền Tây</span>
-                <h3>Xe ghế ngồi tiện nghi</h3>
-                <p class="type-price">Giá vé chỉ từ <?= money(min_price('ghe')) ?></p>
-                <ul>
-                    <li><?= icon('check', 20) ?> Ghế bọc da ngả lưng êm ái, phù hợp các tuyến trong ngày</li>
-                    <li><?= icon('check', 20) ?> Nhiều khung giờ khởi hành liên tục từ sáng sớm đến chiều</li>
-                    <li><?= icon('check', 20) ?> Đón và trả tận nơi trong nội ô TP. Bạc Liêu</li>
-                    <li><?= icon('check', 20) ?> Nước suối và khăn lạnh miễn phí suốt hành trình</li>
-                </ul>
-                <a class="btn btn-line" href="DatVe.php">
-                    <?= icon('ticket', 16) ?> <span>Đặt vé ghế ngồi</span>
-                </a>
-            </article>
+                <div class="feature-card">
+                    <div class="feature-icon-wrapper">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                    </div>
+                    <div class="feature-info">
+                        <h3>Xuất Bến Đúng Giờ</h3>
+                        <p>Lộ trình chạy thẳng cao tốc, giờ chạy chuẩn xác, kiểm định an toàn kỹ thuật nghiêm ngặt trước mỗi chuyến đi.</p>
+                    </div>
+                </div>
 
-            <article class="type type-bed">
-                <span class="tag tag-khuyen-mai" style="align-self:flex-start; margin-bottom:12px; background:var(--color-accent); color:var(--color-primary-dark);">Đường dài & Ban đêm</span>
-                <h3>Xe giường nằm cao cấp</h3>
-                <p class="type-price">Giá vé chỉ từ <?= money(min_price('giuong')) ?></p>
-                <ul>
-                    <li><?= icon('check', 20) ?> Giường nằm 2 tầng riêng tư, chăn đệm sạch sẽ cho giấc ngủ ngon</li>
-                    <li><?= icon('check', 20) ?> Đi TP. Hồ Chí Minh, Bình Dương, Vũng Tàu, Đà Lạt, Nha Trang</li>
-                    <li><?= icon('check', 20) ?> Chạy đêm êm ái, thức dậy là đã tới điểm đến</li>
-                    <li><?= icon('check', 20) ?> Trạm dừng chân tiện nghi, ăn uống vệ sinh sạch sẽ</li>
-                </ul>
-                <a class="btn btn-y" href="DatVe.php">
-                    <?= icon('ticket', 16) ?> <span>Đặt vé giường nằm</span>
-                </a>
-            </article>
+                <div class="feature-card">
+                    <div class="feature-icon-wrapper">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                    </div>
+                    <div class="feature-info">
+                        <h3>Tổng Đài 24/7 Tận Tâm</h3>
+                        <p>Đội ngũ trực điện thoại chuyên nghiệp, thân thiện, giải quyết đổi vé, hoàn vé và gửi hàng nhanh chóng.</p>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
-</section>
+    </section>
 
-<!-- ============ DỊCH VỤ ============ -->
-<section class="section">
-    <div class="wrap">
-        <div class="sec-head">
-            <h2>Hệ sinh thái dịch vụ của nhà xe Tài Nguyên</h2>
-            <p>Không chỉ vận tải hành khách, chúng tôi đáp ứng trọn vẹn nhu cầu đi lại và gửi đồ của bạn.</p>
-        </div>
-        <div class="svc-strip">
-            <a class="svc" href="DichVu.php#hang-hoa">
-                <div class="svc-icon-box"><?= icon('box', 28) ?></div>
-                <h3>Vận chuyển hàng hóa</h3>
-                <p>Nhận gửi bưu phẩm, nông sản, hàng khô và máy móc hỏa tốc trong ngày giữa Bạc Liêu và các tỉnh.</p>
-            </a>
-            <a class="svc" href="DichVu.php#trung-chuyen">
-                <div class="svc-icon-box"><?= icon('car', 28) ?></div>
-                <h3>Xe trung chuyển</h3>
-                <p>Đón và trả khách tại nhà hoàn toàn miễn phí trong nội ô TP. Bạc Liêu, an tâm và tiện lợi.</p>
-            </a>
-            <a class="svc" href="DichVu.php#khach-san">
-                <div class="svc-icon-box"><?= icon('bed', 28) ?></div>
-                <h3>Hợp tác khách sạn</h3>
-                <p>Hỗ trợ đặt phòng khách sạn uy tín với giá ưu đãi tại các điểm du lịch Đà Lạt, Nha Trang, Vũng Tàu.</p>
-            </a>
-            <a class="svc" href="DichVu.php#tram-dung-chan">
-                <div class="svc-icon-box"><?= icon('coffee', 28) ?></div>
-                <h3>Trạm dừng chân</h3>
-                <p>Trạm dừng rộng rãi, sạch sẽ với đồ ăn ngon miệng, đảm bảo vệ sinh an toàn thực phẩm.</p>
-            </a>
-        </div>
-    </div>
-</section>
+    <!-- ================= BỘ LỌC & DANH SÁCH CHUYẾN XE (VEXERE INTERACTIVE ENGINE) ================= -->
+    <section class="trip-results-section" id="tripResultsSection">
+        <div class="container">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-header-title">Lịch khởi hành: <span id="resultsRouteHeader" style="color:var(--futa-orange);">Bạc Liêu ➔ <?= e($defaultRoute['ten'] ?? '') ?></span></h2>
+                    <p class="section-header-desc">Khởi hành hôm nay · Chọn chuyến ưng ý và bấm <strong>"Chọn chuyến"</strong> để chọn sơ đồ giường nằm trực tuyến.</p>
+                </div>
+            </div>
 
-<!-- ============ TIN TỨC ============ -->
-<section class="section section-mist">
-    <div class="wrap">
-        <div class="sec-head">
-            <h2>Tin tức & Khuyến mãi mới nhất</h2>
-            <p>Cập nhật thông tin các chương trình giảm giá vé, thông báo lịch chạy lễ Tết và tin tức nhà xe.</p>
+            <div class="results-layout">
+                <!-- SIDEBAR BỘ LỌC (Vexere Filter Sidebar) -->
+                <aside class="filter-card">
+                    <div class="filter-card-header">
+                        <h3>Bộ lọc tìm kiếm</h3>
+                        <button type="button" class="btn-reset-filter" id="btnResetFilters">Xóa tất cả</button>
+                    </div>
+
+                    <!-- Khung giờ xuất bến -->
+                    <div class="filter-group">
+                        <div class="filter-group-title">Giờ khởi hành</div>
+                        <div class="filter-options-list">
+                            <label class="filter-checkbox-item">
+                                <input type="checkbox" name="filterTime" value="early">
+                                <span>Sáng sớm (00:00 - 06:00)</span>
+                            </label>
+                            <label class="filter-checkbox-item">
+                                <input type="checkbox" name="filterTime" value="morning">
+                                <span>Buổi sáng (06:00 - 12:00)</span>
+                            </label>
+                            <label class="filter-checkbox-item">
+                                <input type="checkbox" name="filterTime" value="afternoon">
+                                <span>Buổi chiều (12:00 - 18:00)</span>
+                            </label>
+                            <label class="filter-checkbox-item">
+                                <input type="checkbox" name="filterTime" value="night">
+                                <span>Buổi tối (18:00 - 24:00)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                </aside>
+
+                <!-- CỘT DANH SÁCH CHUYẾN XE (DYNAMIC) -->
+                <div class="trips-main-col">
+                    <!-- Thanh sắp xếp -->
+                    <div class="trips-sorting-bar">
+                        <div class="trips-count-label">Giờ khởi hành trong dữ liệu: <strong id="resultsCountNumber"><?= count($routeForResults['khoi_hanh'] ?? []) ?></strong></div>
+                        <div class="sorting-chips-group">
+                            <button type="button" class="sort-chip active" data-sort="time-asc">Giờ đi sớm nhất</button>
+                        </div>
+                    </div>
+
+                    <div id="tripsListContainer" style="display:grid; gap:16px;">
+                        <?php if ($routeForResults): ?>
+                            <?php foreach (array_slice($routeForResults['khoi_hanh'], 0, 8) as $gioKhoiHanh): ?>
+                                <article class="trip-card" data-departure="<?= e($gioKhoiHanh) ?>" data-route="<?= e($routeForResults['slug']) ?>">
+                                    <div class="trip-card-main">
+                                        <div class="trip-info-left">
+                                            <span class="trip-bus-type-tag">Ghế ngồi / Giường nằm</span>
+                                            <div class="trip-timeline">
+                                                <div class="timeline-point">
+                                                    <span class="time"><?= e(substr($gioKhoiHanh, 0, 5)) ?></span>
+                                                    <span class="place">Bạc Liêu</span>
+                                                </div>
+                                                <div class="timeline-duration-indicator">
+                                                    <span><?= duration($routeForResults['gio']) ?></span>
+                                                    <div class="timeline-bar"></div>
+                                                    <span style="font-size:0.75rem; color:#10b981;">✓ Chạy thẳng</span>
+                                                </div>
+                                                <div class="timeline-point" style="text-align:right;">
+                                                    <span class="time">Theo lịch thực tế</span>
+                                                    <span class="place"><?= e($routeForResults['ten']) ?></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="trip-action-right">
+                                            <span class="trip-seat-availability">Giá từ <?= money(min(array_filter([$routeForResults['ghe'], $routeForResults['giuong']], fn($p) => $p !== null))) ?></span>
+                                            <a class="btn btn-primary btn-block" href="DatVe.php?tuyen=<?= e($routeForResults['slug']) ?>&ngay=<?= date('Y-m-d') ?>&gio=<?= e(substr($gioKhoiHanh, 0, 5)) ?>">
+                                                Chọn chuyến
+                                            </a>
+                                        </div>
+                                    </div>
+                                </article>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="news-grid">
-            <a class="news-lead" href="TinTuc.php?id=<?= (int)$latest[0]['id'] ?>">
-                <p style="margin-bottom:8px;">
-                    <span class="tag tag-<?= e($latest[0]['loai']) ?>"><?= e($news_types[$latest[0]['loai']]) ?></span>
-                    <span class="date"><?= date('d/m/Y', strtotime($latest[0]['ngay'])) ?></span>
-                </p>
-                <h3><?= e($latest[0]['tieu_de']) ?></h3>
-                <p class="muted" style="margin:0"><?= e($latest[0]['tom_tat']) ?></p>
-            </a>
-            <ul class="news-list">
-                <?php foreach (array_slice($latest, 1) as $n): ?>
-                    <li>
-                        <a href="TinTuc.php?id=<?= (int)$n['id'] ?>">
-                            <span class="tag tag-<?= e($n['loai']) ?>"><?= e($news_types[$n['loai']]) ?></span>
-                            <span class="date"><?= date('d/m/Y', strtotime($n['ngay'])) ?></span>
-                            <h3><?= e($n['tieu_de']) ?></h3>
-                        </a>
-                    </li>
+    </section>
+
+    <!-- ================= TUYẾN ĐƯỜNG PHỔ BIẾN (VEXERE + FUTA CARDS) ================= -->
+    <section class="routes-section" id="tuyen-duong" style="background:#ffffff;">
+        <div class="container">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-header-title">Tuyến Đường Phổ Biến Của Tài Nguyên</h2>
+                    <p class="section-header-desc">Khởi hành hàng ngày từ TP. Bạc Liêu với nhiều chuyến liên tục sáng - chiều - đêm.</p>
+                </div>
+            </div>
+
+            <div class="routes-cards-grid">
+                <?php foreach ($routes as $route): ?>
+                    <?php
+                    $prices = array_filter([$route['ghe'], $route['giuong']], function ($price) {
+                        return $price !== null && $price > 0;
+                    });
+                    $startingPrice = $prices ? min($prices) : 0;
+                    ?>
+                    <article class="route-display-card">
+                        <div class="route-card-content">
+                            <div class="route-header-info">
+                                <h3>Bạc Liêu ➔ <?= e($route['ten']) ?></h3>
+                                <span><?= (int)$route['km'] ?> km · <?= e(duration($route['gio'])) ?></span>
+                            </div>
+                            <div class="route-specs-list">
+                                <div class="route-spec-item">
+                                    <span>Giờ chạy:</span>
+                                    <strong><?= $route['khoi_hanh'] ? e(implode(', ', array_slice($route['khoi_hanh'], 0, 8))) : 'Chưa cập nhật' ?></strong>
+                                </div>
+                                <div class="route-spec-item">
+                                    <span>Ghế ngồi:</span>
+                                    <strong><?= $route['ghe'] ? money($route['ghe']) : 'Chưa cập nhật' ?></strong>
+                                </div>
+                                <?php if ($route['giuong'] !== null): ?>
+                                <div class="route-spec-item">
+                                    <span>Giường nằm:</span>
+                                    <strong><?= money($route['giuong']) ?></strong>
+                                </div>
+                                <?php endif; ?>
+                                <div class="route-spec-item">
+                                    <span>Giá vé chỉ từ:</span>
+                                    <span class="price-highlight"><?= money($startingPrice) ?></span>
+                                </div>
+                            </div>
+                            <a class="btn btn-primary btn-block" href="DatVe.php?tuyen=<?= e($route['slug']) ?>">
+                                Đặt vé đi <?= e($route['ten']) ?>
+                            </a>
+                        </div>
+                    </article>
                 <?php endforeach; ?>
-            </ul>
+            </div>
         </div>
-        <p style="margin-top:28px; text-align:center;">
-            <a class="btn btn-line" href="TinTuc.php">
-                <span>Xem tất cả tin tức và khuyến mãi</span> <?= icon('arrow-right', 16) ?>
-            </a>
-        </p>
-    </div>
-</section>
+    </section>
 
-<!-- ============ GỌI HOTLINE ============ -->
-<section class="section section-dark cta">
-    <div class="wrap">
-        <h2>Cần hỗ trợ đặt vé hoặc gửi hàng nhanh?</h2>
-        <p>Tổng đài viên Tài Nguyên sẵn sàng phục vụ và giải đáp mọi thắc mắc từ <?= e($company['gio_mo']) ?> hàng ngày.</p>
-        <div class="hero-actions">
-            <a class="btn btn-y btn-lg" href="tel:<?= preg_replace('/\D/', '', $company['hotline']) ?>">
-                <?= icon('phone', 20) ?> <span>Gọi Hotline: <?= e($company['hotline']) ?></span>
-            </a>
-            <a class="btn btn-ghost btn-lg" href="LienHe.php">
-                <?= icon('mail', 20) ?> <span>Gửi tin nhắn liên hệ</span>
-            </a>
+    <!-- ================= PROMOTIONS & VOUCHERS ================= -->
+    <section class="promos-section" id="khuyen-mai">
+        <div class="container">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-header-title">Ưu Đãi & Khuyến Mãi Nóng</h2>
+                    <p class="section-header-desc">Tiết kiệm hơn khi đặt vé xe Tài Nguyên trực tuyến.</p>
+                </div>
+            </div>
+
+            <div class="promo-cards-grid">
+                <?php if ($promotions): ?>
+                    <?php foreach ($promotions as $promotion): ?>
+                    <article class="promo-card">
+                        <div class="promo-img-box">
+                            <span class="promo-badge-tag"><?= e($news_types[$promotion['loai']] ?? 'Khuyến mãi') ?></span>
+                            <div style="padding:24px;color:#ffffff;height:100%;display:flex;flex-direction:column;justify-content:center;">
+                                <h3 style="font-size:1.4rem;font-weight:800;"><?= e($promotion['tieu_de']) ?></h3>
+                                <p style="font-size:0.9rem;opacity:0.9;"><?= e($promotion['tom_tat']) ?></p>
+                            </div>
+                        </div>
+                        <div class="promo-card-body">
+                            <h4><?= e($promotion['tieu_de']) ?></h4>
+                            <p><?= e($promotion['tom_tat']) ?></p>
+                            <div class="promo-card-footer">
+                                <span><?= date('d/m/Y', strtotime($promotion['ngay'])) ?></span>
+                                <a class="promo-code-pill" href="TinTuc.php?id=<?= (int)$promotion['id'] ?>">Xem chi tiết</a>
+                            </div>
+                        </div>
+                    </article>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <p class="empty">Hiện chưa có chương trình khuyến mãi đang được đăng.</p>
+                <?php endif; ?>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= DỊCH VỤ TÀI NGUYÊN EXPRESS ================= -->
+    <section class="section" id="dich-vu" style="padding:56px 0; background:#ffffff;">
+        <div class="container">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-header-title">Hệ Sinh Thái Dịch Vụ Nhà Xe Tài Nguyên</h2>
+                    <p class="section-header-desc">Giải pháp vận tải toàn diện đáp ứng mọi nhu cầu đi lại và gửi đồ của bạn.</p>
+                </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:24px;">
+                <?php foreach ($services as $service): ?>
+                <article style="background:var(--bg-page); border:1px solid var(--border-color); border-radius:var(--radius-lg); padding:32px 24px; text-align:center;">
+                    <div style="width:64px; height:64px; border-radius:50%; background:var(--futa-orange-soft); color:var(--futa-orange); display:flex; align-items:center; justify-content:center; margin:0 auto 18px;">
+                        <?= $service['loai'] === 'trung_chuyen' ? icon('car', 32) : icon('box', 32) ?>
+                    </div>
+                    <h3 style="font-size:1.25rem; font-weight:700; color:var(--brand-navy); margin-bottom:10px;"><?= e($service['ten']) ?></h3>
+                    <p style="color:var(--text-muted); font-size:0.92rem; line-height:1.6; margin-bottom:12px;"><?= e($service['mota']) ?></p>
+                    <?php if ($service['gia'] > 0): ?>
+                        <p class="price-highlight">Từ <?= money($service['gia']) ?></p>
+                    <?php endif; ?>
+                    <a href="DatDichVu.php?service=<?= e($service['loai']) ?>" class="btn btn-outline-orange btn-block">Đặt dịch vụ</a>
+                </article>
+                <?php endforeach; ?>
+                <?php if (!$services): ?>
+                    <p class="empty">Hiện chưa có dịch vụ nào được mở.</p>
+                <?php endif; ?>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= MODAL: CHỌN THÀNH PHỐ (VEXERE STYLE) ================= -->
+    <div class="modal-backdrop" id="cityModal">
+        <div class="modal-content-card">
+            <div class="modal-header">
+                <h3 id="cityModalTitle">Chọn Tỉnh / Thành phố</h3>
+                <button class="modal-close-btn" id="closeCityModal" type="button" aria-label="Đóng">&times;</button>
+            </div>
+            <div class="modal-search-input-box">
+                <input type="text" id="citySearchInput" placeholder="Tìm kiếm nhanh tỉnh, thành phố (ví dụ: Sài Gòn, Đà Lạt...)">
+            </div>
+            <div class="modal-cities-grid" id="cityModalList">
+                <!-- Được sinh bằng JS -->
+            </div>
         </div>
     </div>
-</section>
+
+    <!-- ================= TOAST THÔNG BÁO ================= -->
+    <div class="toast-notice" id="toastNotice">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f26522" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        <span id="toastMessage">Thông báo</span>
+    </div>
+
+    <script>
+        window.TAI_NGUYEN_ROUTES = <?= $homeRoutesJson ?: '[]' ?>;
+    </script>
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>

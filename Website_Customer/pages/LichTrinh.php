@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__ . '/../backend/includes/config.php';
-require_once __DIR__ . '/../backend/includes/data.php';
+require_once __DIR__ . '/../backend/bootstrap.php';
+require_once __DIR__ . '/../backend/data/loader.php';
 $pageTitle = 'Lịch trình và giá vé';
 $pageDesc  = 'Giờ khởi hành, thời gian chạy và giá vé xe ghế ngồi, giường nằm từ Bạc Liêu đi các tỉnh.';
 include __DIR__ . '/../includes/header.php';
@@ -11,7 +11,7 @@ $groups = array_values(array_unique(array_column($routes, 'nhom')));
 <section class="page-head">
     <div class="wrap">
         <h1>Lịch trình & Giá vé các tuyến</h1>
-        <p>Tất cả các tuyến xe đều hoạt động hai chiều liên tục mỗi ngày. Giờ khởi hành bên dưới là giờ xuất bến tại TP. Bạc Liêu.</p>
+        <p>Giờ khởi hành bên dưới được lấy từ lịch chạy của các tuyến xuất phát tại Bạc Liêu.</p>
     </div>
 </section>
 
@@ -77,7 +77,7 @@ $groups = array_values(array_unique(array_column($routes, 'nhom')));
     <div class="wrap split">
         <div>
             <h2>Điểm đón và trả khách</h2>
-            <p>Khách có thể lên xe trực tiếp tại văn phòng Tài Nguyên ở TP. Bạc Liêu. Nếu ở xa, hãy đăng ký xe trung chuyển đón trả tận nhà khi đặt vé để được hỗ trợ hoàn toàn miễn phí.</p>
+            <p>Khách có thể lên xe tại điểm đón của tuyến. Liên hệ nhà xe để xác nhận địa điểm và đăng ký dịch vụ trung chuyển nếu cần.</p>
             <p><a class="btn btn-line" href="DichVu.php#trung-chuyen"><?= icon('car', 18) ?> <span>Tìm hiểu dịch vụ xe trung chuyển</span></a></p>
         </div>
         <div class="panel">
@@ -86,7 +86,7 @@ $groups = array_values(array_unique(array_column($routes, 'nhom')));
                 <li><?= icon('pin', 20) ?> <span><strong>Bạc Liêu:</strong> <?= e($company['dia_chi']) ?></span></li>
                 <li><?= icon('phone', 20) ?> <span><strong>Hotline tổng đài:</strong> <?= e($company['hotline']) ?> · <?= e($company['hotline2']) ?></span></li>
                 <li><?= icon('clock', 20) ?> <span><strong>Thời gian hoạt động:</strong> <?= e($company['gio_mo']) ?></span></li>
-                <li><?= icon('car', 20) ?> <span><strong>Đón trả tận nơi:</strong> Bán kính 10km nội ô TP. Bạc Liêu</span></li>
+                <li><?= icon('car', 20) ?> <span><strong>Dịch vụ trung chuyển:</strong> Liên hệ nhà xe để xác nhận khu vực phục vụ và chi phí</span></li>
             </ul>
         </div>
     </div>

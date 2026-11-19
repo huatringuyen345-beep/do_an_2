@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__ . '/../backend/includes/config.php';
-require_once __DIR__ . '/../backend/includes/data.php';
+require_once __DIR__ . '/../backend/bootstrap.php';
+require_once __DIR__ . '/../backend/data/loader.php';
 $pageTitle = 'Hỗ trợ';
 $pageDesc  = 'Hình thức thanh toán, chính sách đổi hủy vé và câu hỏi thường gặp khi đi xe Tài Nguyên.';
 include __DIR__ . '/../includes/header.php';
@@ -35,21 +35,12 @@ include __DIR__ . '/../includes/header.php';
     <div class="wrap">
         <div class="sec-head">
             <h2>Đổi và hủy vé</h2>
-            <p>Bảng phí mẫu, vui lòng thay bằng chính sách thực tế của công ty.</p>
+            <p>Phí đổi hoặc hủy phụ thuộc vào chuyến đi và thời điểm yêu cầu. Vui lòng liên hệ nhà xe để được xác nhận mức phí áp dụng cho vé của bạn.</p>
         </div>
-        <div class="table-scroll">
-            <table class="fees">
-                <thead>
-                    <tr><th>Thời điểm hủy hoặc đổi</th><th>Phí</th></tr>
-                </thead>
-                <tbody>
-                    <tr><td>Trước giờ xe chạy trên 24 giờ</td><td>Miễn phí</td></tr>
-                    <tr><td>Từ 12 đến 24 giờ</td><td>10% giá vé</td></tr>
-                    <tr><td>Từ 4 đến 12 giờ</td><td>30% giá vé</td></tr>
-                    <tr><td>Dưới 4 giờ</td><td>50% giá vé</td></tr>
-                </tbody>
-            </table>
-        </div>
+        <p>Thông tin chính sách cụ thể sẽ được cập nhật tại đây khi có dữ liệu chính thức.</p>
+        <a class="btn btn-y" href="tel:<?= preg_replace('/\D/', '', $company['hotline']) ?>">
+            <?= icon('phone', 18) ?> <span>Gọi <?= e($company['hotline']) ?></span>
+        </a>
     </div>
 </section>
 

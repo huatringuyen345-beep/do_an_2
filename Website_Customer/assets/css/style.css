@@ -170,6 +170,19 @@ ul, ol { margin: 0; padding: 0; }
 .btn-lg { padding: 0.9em 2em; font-size: 1.08rem; border-radius: var(--radius-lg); }
 .btn-block { width: 100%; }
 
+/* Primary Action Button (Brand Orange) */
+.btn-primary {
+    background: linear-gradient(135deg, #f26522 0%, #ea580c 100%);
+    color: #ffffff;
+    box-shadow: 0 4px 14px rgba(242, 101, 34, 0.32);
+    border: none;
+}
+.btn-primary:hover {
+    background: linear-gradient(135deg, #fb923c 0%, #f26522 100%);
+    color: #ffffff;
+    box-shadow: 0 6px 18px rgba(242, 101, 34, 0.42);
+}
+
 /* Yellow/Gold CTA */
 .btn-y {
     background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
@@ -217,6 +230,94 @@ ul, ol { margin: 0; padding: 0; }
     background: rgba(255, 255, 255, 0.2);
     border-color: #ffffff;
     color: #ffffff;
+}
+
+/* ================= Top Bar ================= */
+.top-bar {
+    background: #0f172a;
+    color: #cbd5e1;
+    font-size: 0.84rem;
+    padding: 7px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.top-bar-in {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+.top-bar-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+.top-bar-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.top-bar-item a {
+    color: #cbd5e1;
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+.top-bar-item a:hover {
+    color: #38bdf8;
+}
+.top-bar-item .hotline-number {
+    color: #fbbf24;
+    font-weight: 700;
+}
+.top-bar-right {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+.top-bar-link {
+    color: #cbd5e1;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color var(--transition-fast);
+}
+.top-bar-link:hover { color: #ffffff; }
+
+/* Brand Icon Box & Accents */
+.brand-icon-box {
+    width: 42px;
+    height: 42px;
+    border-radius: var(--radius-md);
+    background: linear-gradient(135deg, #f26522 0%, #ea580c 100%);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(242, 101, 34, 0.35);
+    flex-shrink: 0;
+}
+.brand-text strong span {
+    color: #f26522;
+}
+
+/* Tra cứu vé button */
+.btn-lookup {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 13px;
+    border-radius: var(--radius-md);
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--color-primary);
+    background: var(--color-primary-soft);
+    border: 1px solid rgba(30, 58, 138, 0.15);
+    text-decoration: none;
+    transition: all var(--transition-fast);
+}
+.btn-lookup:hover {
+    background: #dbeafe;
+    color: var(--color-primary-hover);
+    transform: translateY(-1px);
 }
 
 /* ================= Header & Navigation ================= */
@@ -815,6 +916,7 @@ textarea {
         padding-top: 16px;
         border-top: 1px solid var(--color-border);
     }
+    .btn-lookup { width: 100%; justify-content: center; }
     .guest-auth-group { width: 100%; justify-content: space-between; }
     .guest-auth-group a, .guest-auth-group form { flex: 1; text-align: center; }
     .guest-auth-group form button { width: 100%; }
@@ -822,6 +924,10 @@ textarea {
     .user-menu-wrap { width: 100%; }
     .user-pill-btn { width: 100%; justify-content: space-between; }
     .user-dropdown { position: static; width: 100%; transform: none; box-shadow: none; border: 1px solid var(--color-border); margin-top: 8px; }
+}
+
+@media (max-width: 768px) {
+    .top-bar { display: none; }
 }
 
 @media (max-width: 960px) {

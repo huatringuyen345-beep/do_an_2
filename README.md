@@ -8,11 +8,13 @@
 Website_TaiNguyen/
 ├── Website_Customer/
 │   ├── backend/
-│   │   ├── controllers/       # Bộ điều khiển PHP hiện có
+│   │   ├── bootstrap.php      # Điểm nạp session, cấu hình, helpers và DB
+│   │   ├── config/            # Cấu hình ứng dụng và kết nối database
+│   │   ├── controllers/
+│   │   ├── data/loader.php    # Nạp dữ liệu dùng chung cho giao diện
 │   │   ├── helpers/
-│   │   ├── middleware/
 │   │   ├── models/
-│   │   └── services/
+│   │   └── tools/install.php  # Cài schema ban đầu từ CLI
 │   ├── pages/                 # Trang khách hàng
 │   ├── assets/                # CSS, JavaScript, hình ảnh
 │   ├── includes/              # Header, footer và phần giao diện dùng chung
@@ -43,13 +45,13 @@ Website_TaiNguyen/
 └── README.md
 ```
 
-Các thư mục `models`, `services`, `middleware`, `helpers` và một số module đã được tạo làm ranh giới tổ chức mã. Chỉ các luồng hiện có mới được chuyển vào đó; chưa tạo bộ điều khiển giả cho thanh toán hay đơn dịch vụ phía khách hàng.
+Backend khách hàng dùng `bootstrap.php` làm điểm khởi tạo chung; `data/loader.php` nạp dữ liệu hiển thị. Các luồng đặt vé, thanh toán, dịch vụ, liên hệ và tuyển dụng nằm trong controller/model riêng.
 
 ## Chạy trên XAMPP
 
 1. Đặt project trong `C:\xampp\htdocs\Website_TaiNguyen`.
 2. Khởi động **Apache** và **MySQL** trong XAMPP.
-3. Tạo database `website_tainguyen` bằng `database/website_tainguyen.sql`, hoặc chạy các file trong `database/migrations/` theo thứ tự. Nếu dùng migrations trên database local, có thể chạy thêm `database/seeds/001_demo_admin.sql` để tạo tài khoản quản trị demo nếu tài khoản chưa có.
+3. Tạo database bằng lệnh `php Website_Customer/backend/tools/install.php` từ thư mục gốc. Script chỉ cài schema khi database chưa có và áp dụng migration hồ sơ ứng tuyển. Với database hiện có, sao lưu trước rồi chạy riêng migration `database/migrations/008_recruitment_applications.sql`.
 4. Cấu hình các biến môi trường PHP/Apache theo `.env.example`. Ứng dụng đọc trực tiếp biến môi trường; `.env.example` là mẫu, không tự động được nạp.
 5. Mở trang khách hàng:
 
@@ -59,7 +61,7 @@ Các thư mục `models`, `services`, `middleware`, `helpers` và một số mod
 
    `http://localhost/Website_TaiNguyen/Website_Customer/pages/Login.php?area=staff`
 
-Không import lại schema hoặc chạy lại migration trên database đang có dữ liệu. Sao lưu database trước khi thay đổi.
+Database connection không tự import schema khi có request web. Không import lại schema hoặc chạy lại migration trên database đang có dữ liệu. Sao lưu database trước khi thay đổi.
 Tài khoản quản trị demo chỉ dùng local; đổi mật khẩu ngay sau lần đăng nhập đầu và không dùng trên môi trường công khai.
 
 ## Tài liệu

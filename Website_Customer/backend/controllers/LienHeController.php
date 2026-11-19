@@ -3,13 +3,8 @@
  * Xu ly bieu mau lien he cua khach hang.
  * Kiem tra thong tin gui den va luu tin nhan vao co so du lieu neu co ket noi.
  */
-if (session_status() !== PHP_SESSION_ACTIVE) {
-    session_start();
-}
-
-if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
-    customer_require_account('LienHe.php');
-}
+require_once __DIR__ . '/../bootstrap.php';
+require_once __DIR__ . '/../models/LienHeModel.php';
 
 $loi = [];
 $daGui = false;
@@ -32,21 +27,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $loi[] = 'Vui lòng nhập nội dung cần liên hệ.';
 
     if (!$loi) {
-        $daGui = true;
-        require_once __DIR__ . '/../database/config.php';
         if (isset($conn) && $conn instanceof mysqli) {
             try {
                 $maNguoiDung = isset($_SESSION['account']['id']) ? (int)$_SESSION['account']['id'] : null;
-                $tieuDe = 'Tin nhắn liên hệ từ website';
-                $cauLenh = $conn->prepare(
-                    "INSERT INTO lien_he (ma_nguoi_dung, ho_ten, email, so_dien_thoai, tieu_de, noi_dung, trang_thai)
-                     VALUES (?, ?, ?, ?, ?, ?, 'moi')"
-                );
-                $cauLenh->bind_param('isssss', $maNguoiDung, $hoTen, $emailLienHe, $soDienThoai, $tieuDe, $noiDungLienHe);
-                $cauLenh->execute();
+            $model = new LienHeModel($conn);
+            $model->guiLienHe(
+                $maNguoiDung,
+                $hoTen,
+                $emailLienHe,
+                $soDienThoai,
+                'Tin nhắn liên hệ từ website',
+                $noiDungLienHe
+            );
+                $daGui = true;
             } catch (Throwable $loiDuLieu) {
                 error_log("Loi khi luu lien he vao co so du lieu: " . $loiDuLieu->getMessage());
+                $loi[] = 'Hệ thống chưa thể gửi tin nhắn lúc này. Vui lòng thử lại sau hoặc gọi hotline.';
             }
+        } else {
+            $loi[] = 'Không thể kết nối cơ sở dữ liệu để gửi tin nhắn.';
         }
     }
 }

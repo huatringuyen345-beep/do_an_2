@@ -5,7 +5,7 @@
  * Tài khoản admin và nhân viên được chuyển sang khu vực quản lý.
  */
 
-require_once __DIR__ . '/../backend/includes/config.php';
+require_once __DIR__ . '/../backend/bootstrap.php';
 
 // Khu vực hồ sơ chỉ dành cho tài khoản khách hàng.
 if (in_array($_SESSION['account']['role'] ?? '', ['quan_tri', 'nhan_vien'], true)) {
@@ -18,8 +18,7 @@ if (empty($_SESSION['account']['id'])) {
     exit;
 }
 
-require_once __DIR__ . '/../backend/controllers/DieuKhienTaiKhoan.php';
-require_once __DIR__ . '/../backend/database/config.php';
+require_once __DIR__ . '/../backend/controllers/TaiKhoanController.php';
 
 $userId = (int)$taiKhoan['id'];
 
@@ -51,10 +50,21 @@ $myTickets = [];
 if (isset($conn) && $conn instanceof mysqli) {
     try {
         $tStmt = $conn->prepare(
-            'SELECT ma_dat_ve, ten_khach_hang, sdt_khach_hang, email_khach_hang, tong_tien, thanh_tien, trang_thai, ghi_chu, ngay_dat
-             FROM dat_ve 
-             WHERE ma_nguoi_dung = ? OR (email_khach_hang = ? AND email_khach_hang != "")
-             ORDER BY ngay_dat DESC'
+            "SELECT d.ma_dat_ve, d.ten_khach_hang, d.sdt_khach_hang, d.email_khach_hang,
+                    d.tong_tien, d.thanh_tien, d.trang_thai, d.ghi_chu, d.ngay_dat,
+                    (SELECT GROUP_CONCAT(DISTINCT CONCAT(td.ten_tuyen, ' · ', DATE_FORMAT(cx.gio_khoi_hanh, '%d/%m/%Y %H:%i'))
+                                         SEPARATOR '; ')
+                     FROM chi_tiet_ve ct
+                     INNER JOIN chuyen_xe cx ON cx.ma_chuyen = ct.ma_chuyen
+                     INNER JOIN tuyen_duong td ON td.ma_tuyen = cx.ma_tuyen
+                     WHERE ct.ma_dat_ve_id = d.ma_dat_ve_id) AS thong_tin_chuyen,
+                    (SELECT GROUP_CONCAT(DISTINCT gx.so_ghe ORDER BY gx.so_ghe SEPARATOR ', ')
+                     FROM chi_tiet_ve ct
+                     INNER JOIN ghe_xe gx ON gx.ma_ghe = ct.ma_ghe
+                     WHERE ct.ma_dat_ve_id = d.ma_dat_ve_id AND ct.trang_thai <> 'da_huy') AS danh_sach_ghe
+             FROM dat_ve d
+             WHERE d.ma_nguoi_dung = ? OR (d.email_khach_hang = ? AND d.email_khach_hang != '')
+             ORDER BY d.ngay_dat DESC"
         );
         $userEmail = $userData['email'];
         $tStmt->bind_param('is', $userId, $userEmail);
@@ -69,6 +79,8 @@ if (isset($conn) && $conn instanceof mysqli) {
                 'tong'       => (float)$row['thanh_tien'],
                 'trang_thai' => $row['trang_thai'],
                 'ghi_chu'    => $row['ghi_chu'],
+                'thong_tin_chuyen' => $row['thong_tin_chuyen'] ?? '',
+                'danh_sach_ghe' => $row['danh_sach_ghe'] ?? '',
                 'ngay_dat'   => $row['ngay_dat'],
             ];
         }
@@ -88,7 +100,9 @@ if (!empty($_SESSION['my_bookings']) && is_array($_SESSION['my_bookings'])) {
                 'email'      => $b['email'] ?? $userData['email'],
                 'tong'       => (float)$b['tong'],
                 'trang_thai' => 'cho_xac_nhan',
-                'ghi_chu'    => "Tuyến: {$b['tuyen']} | Ngày: " . date('d/m/Y', strtotime($b['ngay'])) . " {$b['gio']} | Loại: {$b['loai']} | Ghế: " . implode(', ', $b['seats']) . ($b['tc'] ? " | Đón: {$b['tc']}" : ''),
+                'ghi_chu'    => $b['ghi_chu'] ?? '',
+                'thong_tin_chuyen' => "{$b['tuyen']} · " . date('d/m/Y', strtotime($b['ngay'])) . " {$b['gio']}",
+                'danh_sach_ghe' => implode(', ', $b['seats']),
                 'ngay_dat'   => $b['created_at'] ?? date('Y-m-d H:i:s'),
             ];
         }
@@ -291,7 +305,12 @@ include __DIR__ . '/../includes/header.php';
 
                                         <div class="ticket-item-body">
                                             <div class="ticket-item-desc">
-                                                <p class="ticket-notes"><?= e($t['ghi_chu']) ?></p>
+                                                <?php if (!empty($t['thong_tin_chuyen'])): ?>
+                                                    <p class="ticket-notes"><strong>Chuyến:</strong> <?= e($t['thong_tin_chuyen']) ?><?php if (!empty($t['danh_sach_ghe'])): ?> · <strong>Ghế:</strong> <?= e($t['danh_sach_ghe']) ?><?php endif; ?></p>
+                                                <?php endif; ?>
+                                                <?php if (!empty($t['ghi_chu'])): ?>
+                                                    <p class="ticket-notes"><strong>Ghi chú:</strong> <?= e($t['ghi_chu']) ?></p>
+                                                <?php endif; ?>
                                                 <p class="ticket-passenger">
                                                     <span><strong>Hành khách:</strong> <?= e($t['ten']) ?></span>
                                                     <span><strong>SĐT:</strong> <?= e($t['sdt']) ?></span>

@@ -3,9 +3,7 @@
  * Xu ly bieu mau ung tuyen cua khach hang.
  * Kiem tra thong tin lien he va vi tri ung tuyen duoc chon.
  */
-if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
-    customer_require_account('TuyenDung.php');
-}
+require_once __DIR__ . '/../bootstrap.php';
 // Xử lý hồ sơ ứng tuyển:
 // - validate thông tin cá nhân
 // - kiểm tra vị trí ứng tuyển có hợp lệ hay không
@@ -14,6 +12,10 @@ $loi = [];
 $daGui = false;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!csrf_verify($_POST['csrf_token'] ?? null)) {
+        $loi[] = 'Phiên làm việc đã hết hạn. Vui lòng tải lại trang và thử lại.';
+    }
+
     $hoTen = trim(
         $_POST['ten'] ?? ''
         );
@@ -35,6 +37,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $loi[] = 'Vui lòng chọn vị trí ứng tuyển.';
 
     if (!$loi) {
-        $daGui = true;
+        try {
+            $model = new TuyenDungModel($conn);
+            $model->luuHoSoUngTuyen(
+                $maViTriUngTuyen,
+                $hoTen,
+                $soDienThoai,
+                $emailUngTuyen,
+                trim($_POST['gioi_thieu'] ?? '')
+            );
+            $daGui = true;
+        } catch (Throwable $error) {
+            error_log('Recruitment application save failed: ' . $error->getMessage());
+            $loi[] = 'Không thể lưu hồ sơ ứng tuyển lúc này. Vui lòng thử lại sau.';
+        }
     }
 }

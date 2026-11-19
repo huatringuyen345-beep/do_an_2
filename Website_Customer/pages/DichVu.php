@@ -1,6 +1,13 @@
 <?php
-require_once __DIR__ . '/../backend/includes/config.php';
-require_once __DIR__ . '/../backend/includes/data.php';
+require_once __DIR__ . '/../backend/bootstrap.php';
+require_once __DIR__ . '/../backend/data/loader.php';
+$freightService = null;
+foreach ($services as $service) {
+    if ($service['loai'] === 'van_chuyen_hang') {
+        $freightService = $service;
+        break;
+    }
+}
 $pageTitle = 'Dịch vụ';
 $pageDesc  = 'Dịch vụ của Tài Nguyên: vận chuyển hàng hóa, xe trung chuyển, khách sạn và trạm dừng chân.';
 include __DIR__ . '/../includes/header.php';
@@ -34,39 +41,15 @@ include __DIR__ . '/../includes/header.php';
 
         <div class="panel" style="box-shadow:var(--shadow-md);">
             <h3 style="display:flex; align-items:center; gap:8px;">
-                <?= icon('tag', 20) ?> <span>Công cụ tính cước nhanh</span>
+                <?= icon('tag', 20) ?> <span>Giá dịch vụ gửi hàng</span>
             </h3>
-            <p class="hint" style="margin-bottom:16px;">Chọn tuyến đường và khối lượng để xem cước vận chuyển dự kiến.</p>
-
-            <form id="estimateForm">
-                <div class="form-grid">
-                    <div class="field">
-                        <label for="e-tuyen">
-                            <?= icon('pin', 16) ?> Tuyến vận chuyển
-                        </label>
-                        <select id="e-tuyen" name="tuyen">
-                            <?php foreach ($routes as $r): ?>
-                                <option value="<?= e($r['slug']) ?>" data-km="<?= (int)$r['km'] ?>">
-                                    <?= e($r['ten']) ?> (<?= (int)$r['km'] ?> km)
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div class="field">
-                        <label for="e-kg">
-                            <?= icon('tag', 16) ?> Khối lượng ước tính (kg)
-                        </label>
-                        <input type="number" id="e-kg" name="kg" value="10" min="1" max="500">
-                    </div>
-                </div>
-            </form>
-
+            <p class="hint" style="margin-bottom:16px;">Mức giá tham khảo được quản lý trong danh mục dịch vụ.</p>
             <div class="estimate">
-                <span>Cước vận chuyển ước tính:</span>
-                <strong id="estimateOut">0đ</strong>
+                <span><?= $freightService ? e($freightService['ten']) : 'Chưa có giá dịch vụ' ?>:</span>
+                <strong><?= $freightService ? money($freightService['gia']) : 'Liên hệ nhà xe' ?></strong>
             </div>
             <p class="muted" style="margin:14px 0 0; font-size:0.86rem; text-align:center;">
-                * Cước phí mang tính tham khảo. Cước chính thức phụ thuộc vào kích thước thực tế khi nhân viên cân nhận.
+                Giá cuối cùng cần nhân viên xác nhận dựa trên loại hàng, kích thước và điểm giao nhận.
             </p>
         </div>
     </section>
@@ -77,7 +60,7 @@ include __DIR__ . '/../includes/header.php';
             <?= icon('car', 40) ?>
             <h2>Xe trung chuyển đưa đón tận nơi</h2>
             <p>Quý khách không cần tự chạy xe ra bến xe đông đúc. Đội xe trung chuyển của Tài Nguyên sẽ liên hệ và đón tận cửa nhà trong nội ô TP. Bạc Liêu, đưa thẳng ra bến trước giờ xe lớn xuất phát.</p>
-            <p>Khi đặt vé trực tuyến, chỉ cần tích chọn <strong>"Đăng ký xe trung chuyển đón tại nhà"</strong> và nhập địa chỉ cụ thể. Tài xế sẽ gọi hẹn giờ đón chính xác.</p>
+            <p>Khi đặt vé trực tuyến, hãy tích chọn dịch vụ trung chuyển và nhập địa chỉ. Nhân viên sẽ liên hệ xác nhận khả năng phục vụ và chi phí.</p>
             <div style="display:flex; gap:12px; margin-top:20px; flex-wrap:wrap;">
                 <a class="btn btn-g" href="DatVe.php">
                     <?= icon('ticket', 18) ?> <span>Đặt vé có đón tận nhà</span>
@@ -90,8 +73,8 @@ include __DIR__ . '/../includes/header.php';
         <div class="panel panel-mist">
             <h3>Lợi ích của xe trung chuyển Tài Nguyên</h3>
             <ul class="tick">
-                <li><?= icon('check-circle', 20) ?> <span><strong>Hoàn toàn miễn phí</strong> cho hành khách đi các tuyến liên tỉnh</span></li>
-                <li><?= icon('check-circle', 20) ?> <span>Đón trả tận nhà trong bán kính nội ô TP. Bạc Liêu</span></li>
+                <li><?= icon('check-circle', 20) ?> <span>Phí dịch vụ tham khảo được hiển thị trong danh mục dịch vụ</span></li>
+                <li><?= icon('check-circle', 20) ?> <span>Khu vực phục vụ được nhân viên xác nhận khi tiếp nhận yêu cầu</span></li>
                 <li><?= icon('check-circle', 20) ?> <span>Tài xế nhã nhặn, hỗ trợ bốc xếp hành lý cẩn thận</span></li>
                 <li><?= icon('check-circle', 20) ?> <span>Chủ động thời gian, không lo trễ giờ xe xuất bến</span></li>
             </ul>
@@ -112,6 +95,30 @@ include __DIR__ . '/../includes/header.php';
                 <li><?= icon('check-circle', 20) ?> <span>Khu vực vệ sinh rộng rãi, được lau dọn thường xuyên</span></li>
                 <li><?= icon('check-circle', 20) ?> <span>Khu vực ăn uống niêm yết giá công khai, không chèo kéo</span></li>
                 <li><?= icon('check-circle', 20) ?> <span>Quầy đặc sản miền Tây làm quà phong phú, rõ nguồn gốc</span></li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Khách sạn & Điểm nghỉ liên kết -->
+    <section class="service-block split split-rev" id="khach-san">
+        <div class="split-a">
+            <?= icon('pin', 40) ?>
+            <h2>Khách sạn & Điểm nghỉ liên kết</h2>
+            <p>Nhằm mang lại trải nghiệm trọn vẹn cho hành khách đi các chặng xa như Đà Lạt, Nha Trang, Vũng Tàu hay TP. Hồ Chí Minh, Tài Nguyên liên kết cùng mạng lưới khách sạn, nhà nghỉ uy tín tại các điểm đến.</p>
+            <p>Hành khách đi xe Tài Nguyên được hỗ trợ đặt phòng trước với mức giá ưu đãi, có xe trung chuyển đưa đón trực tiếp từ bến xe đến tận sảnh khách sạn.</p>
+            <div style="margin-top:20px;">
+                <a class="btn btn-y" href="tel:<?= preg_replace('/\D/', '', $company['hotline']) ?>">
+                    <?= icon('phone', 18) ?> <span>Hotline tư vấn đặt phòng: <?= e($company['hotline']) ?></span>
+                </a>
+            </div>
+        </div>
+        <div class="panel panel-mist">
+            <h3>Chính sách ưu đãi khách sạn</h3>
+            <ul class="tick">
+                <li><?= icon('check-circle', 20) ?> <span>Giảm 10% - 15% giá phòng khi xuất trình vé xe Tài Nguyên</span></li>
+                <li><?= icon('check-circle', 20) ?> <span>Hỗ trợ nhận phòng sớm hoặc gửi hành lý miễn phí</span></li>
+                <li><?= icon('check-circle', 20) ?> <span>Hệ thống đối tác đạt chuẩn từ 2 đến 4 sao, gần trung tâm</span></li>
+                <li><?= icon('check-circle', 20) ?> <span>Xe trung chuyển đón trả tận nơi hoàn toàn an tâm</span></li>
             </ul>
         </div>
     </section>
