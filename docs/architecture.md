@@ -15,10 +15,10 @@ Các trang khách hàng được phục vụ trực tiếp từ `Website_Custome
 
 ## Luồng PHP khách hàng hiện có
 
-- `DieuKhienTaiKhoan.php`: xác thực, đăng ký và cập nhật tài khoản.
-- `XuLyDatVe.php`: xử lý yêu cầu đặt vé.
-- `XuLyTuyenDung.php`: xử lý form ứng tuyển.
-- `XuLyHoTro.php`: xử lý form liên hệ.
+- `backend/controllers/DieuKhienTaiKhoan.php`: xác thực, đăng ký và cập nhật tài khoản.
+- `backend/controllers/DatVeController.php`: xử lý yêu cầu đặt vé.
+- `backend/controllers/TuyenDungController.php`: xử lý form ứng tuyển và lưu hồ sơ.
+- `backend/controllers/HoTroController.php`: xử lý form liên hệ.
 
 Các thư mục models/services/middleware/helpers và một số module quản lý hiện là chỗ mở rộng, chưa chứa nghiệp vụ riêng. Thanh toán trực tuyến và đặt dịch vụ phía khách chưa được triển khai thành controller riêng.
 

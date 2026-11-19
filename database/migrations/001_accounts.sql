@@ -1,5 +1,8 @@
 -- Migration 001: roles and user accounts
--- Run once on a new database before migrations 002-005.
+-- Chay mot lan tren database moi truoc migrations 002-008.
+-- Khong chay lai tren database dang co du lieu vi cac lenh tao bang
+-- khong su dung IF NOT EXISTS va co the xung dot voi du lieu da ton tai.
+-- Sau khi migration, chay seed hoac tao tai khoan rieng bang password_hash().
 
 CREATE TABLE `vai_tro` (
   `ma_vai_tro` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,

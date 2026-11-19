@@ -51,7 +51,7 @@ Backend khách hàng dùng `bootstrap.php` làm điểm khởi tạo chung; `dat
 
 1. Đặt project trong `C:\xampp\htdocs\Website_TaiNguyen`.
 2. Khởi động **Apache** và **MySQL** trong XAMPP.
-3. Tạo database bằng lệnh `php Website_Customer/backend/tools/install.php` từ thư mục gốc. Script chỉ cài schema khi database chưa có và áp dụng migration hồ sơ ứng tuyển. Với database hiện có, sao lưu trước rồi chạy riêng migration `database/migrations/008_recruitment_applications.sql`.
+3. Tạo database bằng lệnh `php Website_Customer/backend/tools/install.php` từ thư mục gốc. Script chỉ nhập schema khởi tạo khi bảng `vai_tro` chưa tồn tại, sau đó áp dụng migration `database/migrations/008_recruitment_applications.sql`. Với database hiện có, sao lưu trước và chạy các migration còn thiếu theo thứ tự `001` đến `008`.
 4. Cấu hình các biến môi trường PHP/Apache theo `.env.example`. Ứng dụng đọc trực tiếp biến môi trường; `.env.example` là mẫu, không tự động được nạp.
 5. Mở trang khách hàng:
 

@@ -19,7 +19,7 @@ Project hiện có nền tảng website PHP tương đối đầy đủ cho demo
 Tuy vậy, các luồng cốt lõi chưa khép kín:
 
 1. **Đặt vé từ website chưa đặt chỗ trên một chuyến xe cụ thể.** Danh sách tuyến, giá cơ bản và giờ khởi hành phía khách hàng được đọc từ CSDL, nhưng chưa lấy chuyến chạy theo ngày từ `chuyen_xe`; sơ đồ ghế vẫn được tạo cố định ở giao diện. Yêu cầu chỉ ghi vào bảng `dat_ve`, thông tin ghế/chuyến được gói trong ghi chú. Chưa tạo `chi_tiet_ve`/`thanh_toan` cho yêu cầu mới và chưa kiểm tra ghế còn trống.
-2. **Khách hàng chưa gửi đơn dịch vụ hoặc hồ sơ ứng tuyển thực sự.** Trang dịch vụ là nội dung giới thiệu/ước tính; form tuyển dụng chỉ kiểm tra rồi báo nhận hồ sơ, không lưu dữ liệu.
+2. **Khách hàng chưa gửi đơn dịch vụ, nhưng hồ sơ ứng tuyển đã được lưu CSDL.** Trang dịch vụ là nội dung giới thiệu/ước tính. Form tuyển dụng kiểm tra dữ liệu, kiểm tra vị trí đang mở và lưu hồ sơ vào bảng `ho_so_ung_tuyen` qua migration `008_recruitment_applications.sql`.
 3. **Quản trị nội dung công khai còn thiếu.** Tuyến được đọc từ CSDL; tin tức, FAQ và vị trí tuyển dụng cũng được nạp từ CSDL ở phía khách hàng. Tuy nhiên, chưa thấy trang quản trị để cập nhật các nội dung này; một số nội dung như dịch vụ và thông tin công ty vẫn khai báo tĩnh.
 4. **Admin và nhân viên dùng chung quyền thao tác.** Tài khoản cả hai vai trò vào cùng khu quản lý, chưa có phân quyền chi tiết theo nghiệp vụ.
 5. **Còn vấn đề triển khai trước production:** một số form thiếu CSRF, phản hồi liên hệ có thể báo thành công dù ghi thất bại, cấu hình thông tin kết nối/hotline còn là mẫu, và cần kiểm thử các luồng với database thật.
@@ -90,7 +90,7 @@ Tuy vậy, các luồng cốt lõi chưa khép kín:
 - **Theo dõi/cập nhật đặt chỗ:** cần màn hình trạng thái đáng tin cậy, mã vé, thông tin chuyến/ghế có cấu trúc, lịch sử trạng thái; cân nhắc chức năng hủy/đổi theo chính sách.
 - **Thanh toán trực tuyến hoặc hướng dẫn thanh toán hoàn chỉnh:** hiện phương thức chỉ là lựa chọn dự kiến; chưa tạo bản ghi thanh toán hoặc kết nối cổng. Cần thông báo rõ đơn đang chờ xác nhận và không thể hiện như vé đã thanh toán.
 - **Đặt dịch vụ:** chưa có form đặt gửi hàng/trung chuyển để tạo `dat_dich_vu` và `chi_tiet_hang`, theo dõi mã vận đơn hoặc xem lịch sử dịch vụ.
-- **Gửi hồ sơ ứng tuyển:** form chưa lưu vào CSDL, không có bảng hồ sơ ứng tuyển; kết quả “đã nhận hồ sơ” hiện chỉ dựa trên kiểm tra form.
+- **Gửi hồ sơ ứng tuyển:** form đã lưu hồ sơ vào bảng `ho_so_ung_tuyen` sau khi kiểm tra vị trí đang mở; chưa có giao diện quản lý hồ sơ, bộ lọc, phân công xử lý hoặc lịch sử trạng thái.
 - **Tin nhắn hỗ trợ:** khách chưa gửi được phản hồi tiếp theo hoặc xem trạng thái/nội dung trả lời từ trang tài khoản.
 - **CSRF và chống gửi lặp:** cần token CSRF cho form đặt vé, liên hệ và ứng tuyển; thêm cơ chế chống gửi lặp khi người dùng tải lại trang hoặc nhấn gửi nhiều lần.
 - **Thông tin cá nhân:** cần kiểm tra quyền riêng tư và quy tắc tra cứu vé bằng email; tránh để việc dùng cùng email làm lộ thông tin đơn của người khác.
@@ -106,6 +106,8 @@ Các migration định nghĩa được những nhóm dữ liệu chính:
 - `dat_ve`, `chi_tiet_ve`, `thanh_toan`, `khuyen_mai`, `phuong_thuc_thanh_toan`: đặt vé và thanh toán.
 - `dich_vu`, `dat_dich_vu`, `chi_tiet_hang`: dịch vụ và vận đơn hàng hóa.
 - `lien_he`, `tin_tuc`, `hoi_dap`, `tuyen_dung`: hỗ trợ và nội dung.
+- `ho_so_ung_tuyen`: hồ sơ khách hàng nộp cho vị trí tuyển dụng.
+- `lich_su_thanh_toan`: lịch sử thay đổi trạng thái thanh toán cho đơn đặt vé.
 
 ### Những điểm chưa đồng bộ với luồng khách
 
@@ -113,7 +115,7 @@ Các migration định nghĩa được những nhóm dữ liệu chính:
 - Form đặt vé chỉ ghi vào `dat_ve`; chưa nối với `chuyen_xe`, `ghe_xe`, `chi_tiet_ve` và `thanh_toan`.
 - Các bảng `dich_vu`/`dat_dich_vu`/`chi_tiet_hang` có schema và trang quản lý đơn, nhưng chưa thấy form phía khách tạo dữ liệu đơn mới.
 - Bảng `tin_tuc`, `hoi_dap`, `tuyen_dung` có schema/seed và nội dung khách hàng được nạp từ các bảng này qua `backend/data/customer-content.php`; hiện chưa thấy giao diện quản trị tương ứng. Một số nội dung công khai khác như dịch vụ/thông tin công ty vẫn khai báo tĩnh.
-- Chưa có bảng hồ sơ ứng tuyển; cần thiết kế trước khi triển khai nhận CV/tệp đính kèm.
+- Migration `008_recruitment_applications.sql` đã tạo bảng hồ sơ ứng tuyển và nối hồ sơ với vị trí tuyển dụng qua `slug_vi_tri`; chưa có giao diện quản trị hoặc lưu trữ tệp CV đính kèm.
 
 ## 6. Các vấn đề cần xử lý trước khi đưa vào sử dụng thật
 
